@@ -95,7 +95,7 @@ class TorchResDNN(nn.Module):
 
 class ModelBuilder(DNN):
     """
-    Builds Res DNNs model
+    Builds Res DNNs modelaa
     """
 
     def __init__(self, 
