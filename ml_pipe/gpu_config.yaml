@@ -1,0 +1,8 @@
+GPUS:
+    - /GPU:0
+    - /GPU:1
+
+MAX_PROCESSES_PER_GPU: 6 # -1 for unlimited
+
+ENV_VARS:
+    TF_FORCE_GPU_ALLOW_GROWTH: "true"

@@ -1,0 +1,147 @@
+################################################
+## STORAGE DIRECTORY 
+
+base_dir: gs://marketprice/renov/bain/sp5/ds/
+ds_name: flow_test
+base_dir_predict: gs://marketprice/renov/bain/sp5/predict/
+model_name: flow_test
+
+run_dir: /data/
+report_id: first_test
+
+################################################
+## BACKTEST PARAMS
+
+initial_training_month: 1-7-2018
+last_predicting_month:  31-7-2019 
+
+save_experiment: False
+
+################################################
+## ELASTICITY PARAMS
+
+elasticity_periods: 201908
+
+
+################################################
+## FEATURE PARAMS
+
+original_params:
+    date_col: DAT_FIM_VIGENCIA_GERAL
+    target: QTD_PROP
+    hash_col: key
+
+params:  
+    date_col: DATE
+    target: TARGET
+    model_output: PREDICTED
+
+analysis_variables:  
+    - KEY
+    - COD_CAT_TARIFA_BAS
+    - COD_TIPO_RENOV
+    - NME_REGIONAL_PRECO
+    - VAL_PR_ANUAL_LIQUIDO_RENOV
+    - VAL_PR_ANUAL_LIQUIDO
+    
+elasticity_variables: TESTE
+
+label: QTD_PROP
+
+feature_label: all_features + label
+
+vehicle_categ: 10, 11, 14, 15, 20, 21
+dataset_filter: WHERE  COD_CAT_TARIFA_BAS in (10, 11, 14, 15, 20, 21)
+table_name: sas-auto-marketprice-analytics.MKT_PRICING.MKT_PRICING_RENOV_201807_20191023_UPDFEAT_MODEL
+
+
+################################################
+## PIPELINE PARAMS
+
+dataset_generator_params:
+    all_features: 
+        - FIDELIZACAO
+        - VAL_LMR_CASCO
+        - SCORE_CAPTACAO_VN
+        - SCORE_CAPTACAO_TOTAL
+        - VAL_PR_ANUAL_LIQUIDO_RENOV
+        - PERDA_SUM_LAG_3_reg
+        - GANHO_SUM_reg_cat
+        - COD_CLASSE_BONUS
+        - PCT_PERDA_CORRETOR_LAG3
+        - COD_FAMILIA_VEICULO
+        - FLG_VEICULO_NOVO
+        - COD_PORTE_VEICULO
+        - SP_INICIAL
+        - IDC_ESTADO_CIVIL_CONDUTOR
+        - IDC_PROCED_VEICULO
+        - SIG_UF_PRECO
+        - DSC_SEXO_CONDUTOR
+        - VAL_PR_ANUAL_LIQUIDO
+        
+    tl: 1          # Train Lenght
+    tl_mode: m
+    ld: 1          # Lead Time
+    ld_mode: m
+    testl: 3       # Test Length
+    testl_mode: m
+    sl: 1         # Stride Length
+    sl_mode: m
+    
+    method: gcp_bq
+
+task_engineer_params:
+    methods: 
+        one_hot_mean_enc:
+            small_categorical: 
+               - IDC_AVAL_RISCO
+               - MUDANCA_RISCO
+               - COD_CLASSE_BONUS
+               - COD_CAT_TARIFA_BAS
+               - FLG_CAPITAL
+               - NME_REGIONAL_PRECO
+               - DSC_RESID_JOVEM_PART
+               - COD_PORTE_VEICULO
+               - FIDELIZACAO
+               - COD_TIPO_RENOV
+               - DSC_SEXO_CONDUTOR
+               - FLG_PARCERIA
+               - IDC_ESTADO_CIVIL_CONDUTOR
+               - IDC_PROCED_VEICULO
+               - FLG_VEICULO_NOVO
+               - COD_PROD
+               - COD_SEGMENTO_VEICULO
+               - SIG_UF_PRECO
+
+            large_categorical:
+               - QTD_IDADE_CONDUTOR_MODEL
+               - COD_FAMILIA_VEICULO
+               - COD_REGIAO_POLITICA
+               - COD_TIPO_VEICULO
+               - DSC_SEGRA_ANT
+               - COD_USO_VEICULO
+
+task_model_params:
+    method: xgboost
+    model_params:
+        colsample_bytree: 0.75
+        eta: 0.375
+        gamma: 0.15
+        max_depth: 5
+        min_child_weight: 7.0
+        n_estimators: 500
+        reg_alpha: 2.55
+        reg_lambda : 0.12
+        subsample: 0.75
+        verbose : 20
+        eval_metric: logloss 
+        objective: binary:logistic
+        booster: gbtree
+        tree_method: gpu_hist
+        gpu_id : 0
+        random_seed : 42
+
+    
+################################################
+## FLOW PARAMS
+workers: 10

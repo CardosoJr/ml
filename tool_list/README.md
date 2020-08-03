@@ -1,4 +1,4 @@
-# Testing some python packages
+# Machine Learning Tool List
 
 ### Experimentation 
 * https://deepkit.ai/documentation/getting-started
@@ -6,6 +6,8 @@
 * https://www.comet.ml/site/enterprise/
 * mlflow 
 * https://github.com/allegroai/trains/
+* https://github.com/SCCH-KVS/training-engine
+* [Caliban](https://github.com/google/caliban)
 
 ### Debuging
 * PixieDebugger 
@@ -18,19 +20,21 @@
 * TFX (tf data validation, model analysis, model profiler) 
 * Airflow
 
-### Tunning
+### AutoML & Tunning
+* [Carefree](https://github.com/carefree0910/carefree-learn)
 * https://github.com/kubeflow/katib
 * optuna
 * https://github.com/gdikov/hypertunity
 * hyperopt
 
-### Data Eng
+### Data Eng & Data Analysis
 * https://github.com/pandas-profiling/pandas-profiling
 * https://github.com/yhat/pandasql
 * https://github.com/dovpanda-dev/dovpanda
 * https://github.com/modin-project/modin
 * https://github.com/drivendata/cookiecutter-data-science
-* https://docs.greatexpectations.io/en/latest/
+* [Great Expectations](https://docs.greatexpectations.io/en/latest/): pipeline data validation
+* [Datagene](https://github.com/firmai/datagene): matrix / tensor similarity
 
 ### Model Analysis
 * what if tool
@@ -59,15 +63,9 @@
 * https://github.com/benedekrozemberczki/littleballoffur
 * https://github.com/danielegrattarola/spektral/
 
-### Curated Lists
-* https://github.com/EthicalML/awesome-production-machine-learning
-* https://project-awesome.org/markusschanta/awesome-jupyter
-* https://github.com/nellopai/deepLearningModels
-
 ### Time Series 
 * https://tsfresh.readthedocs.io/en/latest/
 * https://github.com/TDAmeritrade/stumpy
-
 
 ### xAi 
 * https://github.com/andreysharapov/xaience
@@ -94,5 +92,13 @@
 * https://paperswithcode.com/
 * https://github.com/yaodongyu/Rethink-BiasVariance-Tradeoff
 
+### Curated Lists
+* [ML Phases](https://github.com/amitness/toolbox): tools for all ML project phases
+* [Production](https://github.com/EthicalML/awesome-production-machine-learning): tools for ml in production
+* https://project-awesome.org/markusschanta/awesome-jupyter
+* https://github.com/nellopai/deepLearningModels
+* [tensor house - supply chain solutions](https://github.com/ikatsov/tensor-house)
+
+
 ### Courses Lists
-* 
+* https://github.com/Amin-Tgz/awesome-tensorflow-2
