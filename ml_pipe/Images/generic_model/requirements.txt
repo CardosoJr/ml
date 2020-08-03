@@ -61,7 +61,7 @@ pexpect==4.8.0
 pickleshare==0.7.5
 dill==0.3.2
 cloudpickle==1.5.0
-Pillow==7.0.0
+Pillow==7.1.0
 prometheus-client==0.7.1
 prompt-toolkit==3.0.5
 protobuf==3.11.3
