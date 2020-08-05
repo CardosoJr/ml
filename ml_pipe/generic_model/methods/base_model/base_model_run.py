@@ -53,7 +53,8 @@ def run(config_path):
                               'period_end'   : train_end,
                               'cols'         : config['dataset_generator_params']['all_features'],
                               'where'        : config['dataset_filter'],
-                              'date_col'     : config['original_params']['date_col']}, 
+                              'date_col'     : config['original_params']['date_col'],
+                              'target'       : config['original_params']['target']},
             'key' : train_end.strftime("%Y%W")
         }
 
@@ -67,7 +68,8 @@ def run(config_path):
                               'cols'               : config['dataset_generator_params']['all_features'],
                               'analysis_variables' : config['analysis_variables'],
                               'where'              : config['dataset_filter'],
-                              'date_col'           : config['original_params']['date_col']},
+                              'date_col'           : config['original_params']['date_col'],
+                              'target'             : config['original_params']['target']},
             'key' : train_end.strftime("%Y%W")
         }
     

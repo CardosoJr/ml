@@ -33,15 +33,15 @@ class CreateMultipleDatasets:
                           series_columns,
                           initial_training_month, 
                           last_predicting_month,
-                          label = 'QTD_PROP', 
-                          table_name = '`sas-auto-marketprice-analytics.MKT_PRICING.BASE_MOD_RENOV_201801_201907_key_ajuste`',
+                          label , 
+                          table_name,
                           lead_time = 4, 
                           lead_time_mode = 'w',
                           training_length = 3, 
                           test_size = 3, 
                           base_dir = '',
                           ds_name = 'test',
-                          analysis_variables =  ['key', 'CATEGORIA', 'COD_TIPO_RENOV', 'REGIONAL', 'PREM_EMITIDO_ATU', 'PREM_EMITIDO_ANUAL']):
+                          analysis_variables = []):
         if self.run:
             self.run = False
             feature_label =  features
@@ -61,7 +61,10 @@ class CreateMultipleDatasets:
             
             while prediction_month <= last_predicting_month:
                 
-                print('\t\tDS Train: {0} - {1} | Test : {2} - {3}'.format(train_begin.strftime("%Y-%m-%d"), train_end.strftime("%Y-%m-%d"), test_begin.strftime("%Y-%m-%d"), test_end.strftime("%Y-%m-%d")))
+                print('\t\tDS Train: {0} - {1} | Test : {2} - {3}'.format(train_begin.strftime("%Y-%m-%d"), 
+                                                                          train_end.strftime("%Y-%m-%d"),
+                                                                          test_begin.strftime("%Y-%m-%d"),
+                                                                          test_end.strftime("%Y-%m-%d")))
                 
                 path = base_dir + "{0}/{1}/".format(ds_name, train_begin.strftime("%Y%W"))
                 vehicle_categ = "10, 11, 14, 15, 20, 21"

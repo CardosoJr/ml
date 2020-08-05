@@ -128,7 +128,8 @@ class BacktestParameters:
                               'period_end' : train_end,
                               'cols' : self.all_features,
                               'where' : self.dataset_filter,
-                              'date_col': self.date_col}, 
+                              'date_col' : self.date_col,
+                              'target'       : self.config['original_params']['target']},
             'key' : train_end.strftime("%Y%W")
         }
 
@@ -142,7 +143,8 @@ class BacktestParameters:
                               'cols' : self.all_features,
                               'analysis_variables' : self.analysis_variables,
                               'where' : self.dataset_filter,
-                              'date_col': self.date_col},
+                              'date_col': self.date_col,
+                              'target'       : self.config['original_params']['target']},
             'key' : train_end.strftime("%Y%W")
         }
         

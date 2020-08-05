@@ -28,9 +28,9 @@ class CreateDataSet:
     def __init__(self, 
                  seed = 9999,
                  run = True, 
-                 project = 'sas-auto-marketprice-analytics', 
-                 dataset = 'MKT_PRICING',
-                 table_name = '`sas-auto-marketprice-analytics.MKT_PRICING.BASE_MOD_RENOV_201801_201907_key_ajuste`',
+                 project, 
+                 dataset,
+                 table_name,
                  ds_name = 'teste', 
                  dir = ''):
         self.ds_name = ds_name
@@ -84,9 +84,9 @@ class CreateDataSet:
     def create_train_eval_bq(self, 
                           period_begin,
                           period_end,
-                          date_col = 'DAT_FIM_VIGENCIA',
+                          date_col,
                           cols = [],
-                          target = 'QTD_PROP',
+                          target,
                           where = '',
                           train_size = 0.8,
                           key_col = 'key'):
@@ -136,12 +136,12 @@ class CreateDataSet:
     def create_predict_scoring_bq(self, 
                           period_begin,
                           period_end,
-                          date_col = 'DAT_FIM_VIGENCIA',
-                          target = 'QTD_PROP',
+                          date_col,
+                          target,
                           where = '',
                           cols = [],
                           key_col = 'key',        
-                          analysis_variables =  ['key', 'CATEGORIA', 'COD_TIPO_RENOV', 'REGIONAL', 'PREM_EMITIDO_ATU', 'PREM_EMITIDO_ANUAL']):
+                          analysis_variables = []):
         
         output_table = datetime.now().strftime("%Y%m%d%H%M%f") + '_aux'
         date_columns = list([date_col])
