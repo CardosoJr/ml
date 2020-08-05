@@ -57,10 +57,8 @@ class BacktestParameters:
         
         self.task_engineer_params = {
             'method' : list(config['task_engineer_params']['methods'].keys()),
-            'engineer' : self._get_engineer_params(config)}
+            'engineer' : BacktestParameters.get_engineer_params(config)}
 
-        print("ENGINEER", self.task_engineer_params)
-        
         key = 'teste'
         self.task_model_params = {
             'method' : config['task_model_params']['method'],
@@ -84,8 +82,8 @@ class BacktestParameters:
             'score_params' : { 'training' : (config['initial_training_month'], 1) ,
                                'oos' : (config['initial_training_month'], 1)}}        
     
-    
-    def _get_engineer_params(self, config):
+    @staticmethod
+    def get_engineer_params(config):
         eng_params = {}
         
         for method, params in config['task_engineer_params']['methods'].items():
@@ -225,6 +223,7 @@ class BacktestParameters:
                                                                                                                       test_length_mode)
         return parameters
 
+    
 class CreateTaskList:
     def __init__(self, task_constructor, parameter_generator):
         self.task_constructor = task_constructor 

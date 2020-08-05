@@ -101,5 +101,5 @@ webencodings==0.5.1
 widgetsnbextension==3.5.1
 xgboost==1.0.1
 zipp==3.1.0
-pytorch==1.5.1
-torchvision==0.6.1
+pytorch==1.6.0
+torchvision==0.7.0

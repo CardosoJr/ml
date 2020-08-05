@@ -1,5 +1,5 @@
 FROM google/cloud-sdk:297.0.1
-FROM tensorflow/tensorflow:2.2.0-gpu
+FROM tensorflow/tensorflow:2.3.0-gpu
 
 RUN apt-get update -y && apt-get install -y -q ca-certificates python3-dev python3-setuptools python3-pip unzip
 
