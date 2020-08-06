@@ -23,6 +23,12 @@ if __name__ == '__main__':
                 from generic_model.methods.hyperopt_search import gridsearch_run as hs
                 print('Running Hyperopt')
                 hs.run(sys.argv[4])
+                
+            elif sys.argv[3] == 'run_base_model':
+                from generic_model.methods.base_model import base_model_run as hs
+                print('Running Hyperopt')
+                hs.run(sys.argv[4])
+                 
                     
     else:
         print('No found methods')        

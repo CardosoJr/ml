@@ -76,11 +76,11 @@ class BacktestParameters:
                         'elasticity_col' : config['elasticity_variables']}}
 
         self.task_metrics_params = {
-            'method' : 'standard',
-            'model_name' : config['model_name'],
-            'method_regional' : '',
-            'score_params' : { 'training' : (config['initial_training_month'], 1) ,
-                               'oos' : (config['initial_training_month'], 1)}}        
+            'method'          : list(config['task_metric_params']['methods'].keys()),
+            'metrics'         : config['task_metric_params']['methods'],
+            'model_name'      : config['model_name'],
+            'score_params'    : { 'training' : (config['initial_training_month'], 1) ,
+                                  'oos' : (config['initial_training_month'], 1)}}        
     
     @staticmethod
     def get_engineer_params(config):
@@ -121,23 +121,27 @@ class BacktestParameters:
     def _create_parameter(self, train_begin, train_end, test_begin, test_end):
         taks_te_params = {
             'method' : self.config['dataset_generator_params']['method'],
-            'create_ds' :  {  'ds_name' : self.ds_name, 
-                              'dir' : self.base_dir,
-                              'table_name' : self.table_name},
+            'create_ds' :  {  'ds_name'      : self.ds_name, 
+                              'dir'          : self.base_dir,
+                              'table_name'   : self.table_name,
+                              'project'      : self.table_name.replace("`", "").split(".")[0],
+                              'dataset'      : self.table_name.replace("`", "").split(".")[1]},
             'ds_params' :  {  'period_begin' : train_begin,
-                              'period_end' : train_end,
-                              'cols' : self.all_features,
-                              'where' : self.dataset_filter,
-                              'date_col' : self.date_col,
+                              'period_end'   : train_end,
+                              'cols'         : self.all_features,
+                              'where'        : self.dataset_filter,
+                              'date_col'     : self.date_col,
                               'target'       : self.config['original_params']['target']},
             'key' : train_end.strftime("%Y%W")
         }
 
         task_ps_params = {
             'method' : self.config['dataset_generator_params']['method'],
-            'create_ds' : {  'ds_name' : self.ds_name, 
-                             'dir' : self.base_dir,
-                             'table_name' : self.table_name},
+            'create_ds' : {  'ds_name'      : self.ds_name, 
+                             'dir'          : self.base_dir,
+                             'table_name'   : self.table_name,
+                             'project'      : self.table_name.replace("`", "").split(".")[0],
+                             'dataset'      : self.table_name.replace("`", "").split(".")[1]},
             'ds_params' : {  'period_begin' : test_begin,
                               'period_end' : test_end,
                               'cols' : self.all_features,

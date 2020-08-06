@@ -119,13 +119,8 @@ class DNN:
     def get_early_stopping_callback(self, metric, epochs):
         return tf.keras.callbacks.EarlyStopping(monitor = metric, patience = epochs, mode = 'auto', verbose = 1)
     
-    def get_callbacks(self):
-        callbacks = [
-                # This callback saves a SavedModel every 100 batches
-                tf.keras.callbacks.ModelCheckpoint(filepath = 'path/to/cloud/location/ckpt', save_freq=100),
-                tf.keras.callbacks.TensorBoard('path/to/cloud/location/tb/')
-            ]
-        return callbacks
+    def get_tensorboard_callback(self):
+        return tf.keras.callbacks.TensorBoard(self.model_params['tensorboard_path'], update_freq='epoch')
     
     def build_dataset(self, df, label, batch_size = 1, training = True):
         target = df.pop(label)
@@ -155,6 +150,7 @@ class DNN:
             size = size * rate
             if size < min_size: 
                 size = min_size
+            
             layers.append(tf.keras.layers.Dense(units = size,
                                                 activation = self.model_params['activation'],
                                                 kernel_regularizer = tf.keras.regularizers.l2(self.model_params['regularizer'])))
@@ -233,6 +229,10 @@ class DNN:
         
         
         callbacks = [self.get_early_stopping_callback('auc', self.model_params['early_stopping_it'])]
+        
+        if self.model_params['visualize']:
+            callbacks.append(self.get_tensorboard_callback())
+        
         self.model.fit(
                     train_dataset,
                     epochs = self.model_params['iterations'],

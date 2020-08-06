@@ -103,3 +103,4 @@ xgboost==1.0.1
 zipp==3.1.0
 pytorch==1.6.0
 torchvision==0.7.0
+pytorch-lightning==0.8.5

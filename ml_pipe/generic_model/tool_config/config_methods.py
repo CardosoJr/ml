@@ -38,8 +38,11 @@ model_creator = {
 
 elasticity = price_elasticity.Elasticity([])
 
-metrics_creator = [abs_perc_err.AbsPercErr(), auc.Auc(), elasticity_err.ElasticityErr()]
-metrics_creator_name = '{0}/{1}/{2}'.format(abs_perc_err.AbsPercErr.__name__,auc.Auc.__name__, elasticity_err.ElasticityErr.__name__)
+metrics_creator = {
+    'abs_perc_err'   : lambda params: abs_perc_err.AbsPercErr(**params),
+    'auc'            : lambda params: auc.Auc(**params),
+    'elasticity_err' : lambda params: elasticity_err.ElasticityErr(**params)   
+}
 
 optimization_lock = Lock()
 

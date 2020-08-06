@@ -88,6 +88,8 @@ class AbsPercErr:
             dataframe with metric values
         '''
         
+        
+        
         all_err = pd.DataFrame([])
         for name, period in analysis_periods.items():
             end_date = self.get_end_date(df, period[0], period[1])

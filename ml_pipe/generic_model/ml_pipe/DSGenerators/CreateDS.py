@@ -26,13 +26,13 @@ from dateutil.relativedelta import relativedelta
 
 class CreateDataSet:
     def __init__(self, 
-                 seed = 9999,
-                 run = True, 
                  project, 
                  dataset,
                  table_name,
                  ds_name = 'teste', 
-                 dir = ''):
+                 dir = '',
+                 seed = 9999,
+                 run = True):
         self.ds_name = ds_name
         self.run = run
         self.seed = seed
@@ -85,8 +85,8 @@ class CreateDataSet:
                           period_begin,
                           period_end,
                           date_col,
-                          cols = [],
                           target,
+                          cols = [],
                           where = '',
                           train_size = 0.8,
                           key_col = 'key'):

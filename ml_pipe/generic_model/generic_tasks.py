@@ -179,9 +179,11 @@ class TaskModelMetrics(d6tflow.tasks.TaskPqPandas):
         output = {}
             
         output['full_metrics'] = pd.DataFrame([])
-        for metric in config_methods.metrics_creator:
-            output['full_metrics'] = output['full_metrics'].append(metric.calculate(scores, self.task_metrics_params['score_params']), ignore_index = True)
-            
+        
+        for method in self.task_metrics_params['method']:
+            metric_obj = metrics_creator[method](**self.task_metrics_params['metrics'][method])
+            output['full_metrics'] = output['full_metrics'].append(metric_obj.calculate(scores, self.task_metrics_params['score_params']), ignore_index = True)
+        
         self.save(output)
 
 ##################################################################################################

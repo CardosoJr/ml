@@ -9,6 +9,7 @@ import luigi
 import gc
 
 import pandas as pd
+import numpy as np
 import os
 from pathlib import Path
 
@@ -31,7 +32,7 @@ def handle_config(config_path):
     return config_data
 
 
-def run(config_path):     
+def run(config_path):
     config = handle_config(config_path)
     d6tflow.set_dir(config['run_dir'] + 'data/')
     available_gpu = [0, 1] ## TODO USE AS PARAMETER
@@ -45,10 +46,12 @@ def run(config_path):
                                                                                                                   config['dataset_generator_params']['testl_mode'])
     
     taks_te_params = {
-            'method' : self.config['dataset_generator_params']['method'],
+            'method'    : config['dataset_generator_params']['method'],
             'create_ds' :  {  'ds_name'      : config['ds_name'], 
                               'dir'          : config['base_dir'],
-                              'table_name'   : config['table_name']},
+                              'table_name'   : config['table_name'],
+                              'project'      : config['table_name'].replace("`", "").split(".")[0],
+                              'dataset'      : config['table_name'].replace("`", "").split(".")[1]},
             'ds_params' :  {  'period_begin' : config['initial_training_month'],
                               'period_end'   : train_end,
                               'cols'         : config['dataset_generator_params']['all_features'],
@@ -59,10 +62,12 @@ def run(config_path):
         }
 
     task_ps_params = {
-            'method' : self.config['dataset_generator_params']['method'],
-            'create_ds' : {  'ds_name'             : config['ds_name'],, 
+            'method' : config['dataset_generator_params']['method'],
+            'create_ds' : {  'ds_name'             : config['ds_name'],
                              'dir'                 : config['base_dir'],
-                             'table_name'          : config['table_name']},
+                             'table_name'          : config['table_name'],
+                             'project'             : config['table_name'].replace("`", "").split(".")[0],
+                             'dataset'             : config['table_name'].replace("`", "").split(".")[1]},
             'ds_params' : {  'period_begin'        : test_begin,
                               'period_end'         : test_end,
                               'cols'               : config['dataset_generator_params']['all_features'],
@@ -72,8 +77,6 @@ def run(config_path):
                               'target'             : config['original_params']['target']},
             'key' : train_end.strftime("%Y%W")
         }
-    
-    
     
     task_engineer_params = {
         'method' : list(config['task_engineer_params']['methods'].keys()),
@@ -97,20 +100,20 @@ def run(config_path):
                     'elasticity_col' : config['elasticity_variables']}}
 
     task_metrics_params = {
-        'method' : 'standard',
-        'model_name' : config['model_name'],
-        'method_regional' : '',
-        'score_params' : 'erro_train' : (config['initial_training_month'], train_end),
-                         'erro_oos'   : (prediction_begin, prediction_end)
+        'method'          : list(config['task_metric_params']['methods'].keys()),
+        'metrics'         : config['task_metric_params']['methods'],
+        'model_name'      : config['model_name'],
+        'score_params'    : {'erro_train' : (config['initial_training_month'], config['dataset_generator_params']['tl']),
+                             'erro_oos'   : (prediction_period, config['dataset_generator_params']['ld'])}
     }  
     
     parameters = {
                 'taks_te_params'       : taks_te_params, 
                 'task_ps_params'       : task_ps_params, 
-                'task_engineer_params' : self.task_engineer_params,
-                'task_model_params'    : model_params_updated,
-                'task_predict_params'  : self.task_predict_params,
-                'task_metrics_params'  : metric_params_updated}
+                'task_engineer_params' : task_engineer_params,
+                'task_model_params'    : task_model_params,
+                'task_predict_params'  : task_predict_params,
+                'task_metrics_params'  : task_metrics_params}
     
     
     tk_metrics = tasks.TaskModelMetrics(**parameters)

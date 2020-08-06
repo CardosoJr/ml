@@ -3,13 +3,18 @@ import numpy as np
 import math
 import os
 import dill
-from modelos.generic_model.tool_config import config_methods
+from generic_model.tool_config import config_methods
 from datetime import datetime
 import os
 from torch import nn, optim
 import torch
 from .utils import DFDataset, EarlyStopping, binary_acc
 from generic_model.ml_pipe import utils
+from torch.utils.tensorboard import SummaryWriter
+
+import pytorch_lightning.metrics.functional as pl_metrics 
+from collections import Counter
+
 
 class TorchDNN(nn.Module):
     def __init__(self, model_params):
@@ -83,8 +88,6 @@ class DNN:
     
     TODO: 
     * Custom loss / metrics
-    * Checkpoint
-    * Tensorboard
     * Class weight
     * Learning Rate decay
     
@@ -97,6 +100,7 @@ class DNN:
                  model_params = {},
                  ds_params = {}):
         
+        self.writer = None
         self.device = []
         self.ds_params = ds_params
         self.model_params =  model_params
@@ -110,9 +114,24 @@ class DNN:
             
     def __del__(self):
         self.release_devices()
+        if self.writer is not None: 
+            self.writer.close()
     
     def __hash__(self):
         return hash(repr(self))
+    
+    def __initialize_logger(self):
+        if self.model_params['visualize']:
+            self.writer = SummaryWriter(self.model_params['tensorboard_path'])
+        
+    def __tb_log_metrics(self, metrics, epoch, training = True):
+        if self.model_params['visualize']:
+            for name, value in metrics.items():
+                self.writer.add_scalar(name + "/" + "Train" if training else "Eval", value, epoch)
+        
+    def __tb_log_graph(self):
+        if self.model_params['visualize']:
+            self.writer.add_graph(self.model)
     
     def save_model(self, path):
         utils.create_folder(path)
@@ -211,21 +230,42 @@ class DNN:
             self.model_params['initial_size'] = input_size
         
         self.__build()
+        self.__tb_log_graph()
         
         self.early_stopping.on_train_begin()
         for epoch in np.arange(self.model_params['iterations']):
-            self.__train(train_loader = train_dataset, 
-                         epoch = epoch)
-            val_loss = self.__test(eval_dataset)
+            tr_loss, tr_metrics = self.__train(train_loader = train_dataset, epoch = epoch)
+            val_loss, val_metrics = self.__test(eval_dataset)
             
-            self.early_stopping.on_epoch_end(epoch, val_loss)
+            if self.model_params['visualize']:
+                self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, epoch, training = True)
+                self.__tb_log_metrics({"loss" : val_loss, **val_metrics}, epoch, training = False)
+            
+            if self.early_stopping.on_epoch_end(epoch, val_loss):
+                break
         
         self.early_stopping.on_train_end()
         
+    
+    def __calculate_metrics(self, pred, target, prvs_metrics = None):
+        
+        metrics = {'accuracy' : pl_metrics.accuracy(pred, target),
+                       'aucroc'   : pl_metrics.aucroc(pred, target),
+                       'f1_score' : pl_metrics.f1_score(pred, target)} 
+        
+        if prvs_metrics is not None: 
+            # doing this to sum two dictionaries with same keys
+            metrics_c = Counter(metrics)
+            prvs_metrics_c = Counter(prvs_metrics)
+            metrics_c.update(prvs_metrics_c)
+            metrics = dict(metrics_c)
+            
+        return metrics
         
     def __train(self, train_loader, epoch):
         self.model.train()
-        
+        running_loss = 0
+        metrics = None
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = data.to(self.device), target.to(self.device)
             self.optimizer.zero_grad()
@@ -233,27 +273,44 @@ class DNN:
             loss = self.loss_fn(output, target.float().unsqueeze(1))
             loss.backward()
             self.optimizer.step()            
+            running_loss += loss.item()
+            
+            if self.model_params['visualize']:
+                metrics = self.__calculate_metrics(output, target.float().unsqueeze(1), metrics)
+            
             if batch_idx % self.model_params['log_interval'] == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader), loss.item()))
+        
+        if metrics is not None:
+            for k in metrics.keys():
+                metrics[k] /= len(train_loader)
+        
+        return running_loss / len(train_loader), metrics
+             
                 
     def __test(self, test_loader):
         self.model.eval()
         test_loss = 0
-        test_acc = 0
+        metrics = None
         with torch.no_grad():
             for data, target in test_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
                 test_loss += self.loss_fn(output, target.float().unsqueeze(1)).item()  # sum up batch loss
-                test_acc  += binary_acc(torch.sigmoid(output), target.float().unsqueeze(1))
+                
+                if self.model_params['visualize']:
+                    metrics = self.__calculate_metrics(output, target.float().unsqueeze(1), metrics)
 
         test_loss /= len(test_loader.dataset)
-        test_acc /= len(test_loader.dataset)
+        print('\nTest set: Avg loss: {:.4f}\n'.format(test_loss))
         
-        print('\nTest set: Avg loss: {:.4f}, Avg Accuracy: ({:.2f}%)\n'.format(test_loss, test_acc))
-        return test_loss
+        if metrics is not None:
+            for k in metrics.keys():
+                metrics[k] /= len(test_loader)
+        
+        return test_loss, metrics
         
     def __predict(self, predict_loader):
         y_pred_list = np.array([])

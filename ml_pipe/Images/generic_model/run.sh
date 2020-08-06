@@ -2,6 +2,10 @@
 
 mode=$1
 
+if [ "$mode" = "base" ]; then
+    python3 main.py generic_model dev run_base_model /data/config.yaml
+fi
+
 if [ "$mode" = "backtest" ]; then
     python3 main.py generic_model dev run_backtest /data/config.yaml
 fi
