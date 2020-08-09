@@ -15,6 +15,8 @@ from torch.utils.tensorboard import SummaryWriter
 import pytorch_lightning.metrics.functional as pl_metrics 
 from collections import Counter
 
+import copy
+
 
 class TorchDNN(nn.Module):
     def __init__(self, model_params):
@@ -125,11 +127,11 @@ class DNN:
         if self.model_params['visualize']:
             self.writer = SummaryWriter(self.model_params['tensorboard_path'])
         
-    def __tb_log_metrics(self, metrics, eval_metrics, epoch, training = True):
+    def __tb_log_metrics(self, metrics, eval_metrics, iteration):
         if self.model_params['visualize']:
             for key in metrics.keys():
                 values = {'Train' : metrics[key], 'Eval' : eval_metrics[key]}
-                self.writer.add_scalars(key, values, epoch)
+                self.writer.add_scalars(key, values, iteration)
             
 #             for name, value in metrics.items():
 #                 self.writer.add_scalar(name + "/" + "Train" if training else "Eval", value, epoch)
@@ -239,18 +241,19 @@ class DNN:
         
         self.early_stopping.on_train_begin()
         for epoch in np.arange(self.model_params['iterations']):
-            tr_loss, tr_metrics = self.__train(train_loader = train_dataset, epoch = epoch)
+            tr_loss, tr_metrics = self.__train(train_loader = train_dataset, test_loader = eval_dataset, epoch = epoch)
             val_loss, val_metrics = self.__test(eval_dataset)
             
             if self.model_params['visualize']:
-                self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, {"loss" : val_loss, **val_metrics}, epoch, training = True)
+                self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, 
+                                      {"loss" : val_loss, **val_metrics}, 
+                                      (epoch + 1) * len(train_dataset))
             
             if self.early_stopping.on_epoch_end(epoch, val_loss):
                 break
         
         self.early_stopping.on_train_end()
         
-    
     def __calculate_metrics(self, pred, target, prvs_metrics = None):
 #          output.cpu().detach().numpy()
         metrics = {'accuracy' : pl_metrics.accuracy(torch.round(pred), torch.round(target)),
@@ -263,7 +266,7 @@ class DNN:
             
         return metrics
         
-    def __train(self, train_loader, epoch):
+    def __train(self, train_loader, test_loader, epoch):
         self.model.train()
         running_loss = 0
         metrics = None
@@ -279,18 +282,32 @@ class DNN:
             if self.model_params['visualize']:
                 metrics = self.__calculate_metrics(output.squeeze(1), target.float(), metrics)
             
-            if batch_idx % self.model_params['log_interval'] == 0:
+            if self.model_params['log_interval'] > 0 and batch_idx % self.model_params['log_interval'] == 0:
+                if self.model_params['visualize']:
+                    val_loss, val_metrics = self.__test(test_loader)
+                    tr_metrics = self.__normalize_metrics(copy.copy(metrics), batch_idx + 1)
+                    
+                    self.__tb_log_metrics({"loss" : running_loss / (batch_idx + 1), **tr_metrics},
+                                          {"loss" : val_loss, **val_metrics},
+                                          epoch * len(train_loader) + batch_idx + 1)
+
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader), loss.item()))
         
-        if metrics is not None:
-            for k in metrics.keys():
-                metrics[k] /= len(train_loader)
+        
+        metrics = self.__normalize_metrics(metrics, len(train_loader))
         
         return running_loss / len(train_loader), metrics
              
-                
+    
+    def __normalize_metrics(self, metrics, length):
+        if metrics is not None:
+            for k in metrics.keys():
+                metrics[k] /= length         
+        
+        return metrics
+
     def __test(self, test_loader):
         self.model.eval()
         test_loss = 0
@@ -304,12 +321,10 @@ class DNN:
                 if self.model_params['visualize']:
                     metrics = self.__calculate_metrics(output.squeeze(1), target.float(), metrics)
 
-        test_loss /= len(test_loader.dataset)
+        test_loss /= len(test_loader)
         print('\nTest set: Avg loss: {:.4f}\n'.format(test_loss))
         
-        if metrics is not None:
-            for k in metrics.keys():
-                metrics[k] /= len(test_loader)
+        metrics = self.__normalize_metrics(metrics, len(test_loader))
         
         return test_loss, metrics
         
