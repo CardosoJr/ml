@@ -108,6 +108,7 @@ class DNN:
         self.configure_gpu(self.model_params['gpu'])
         self.model = None
         torch.manual_seed(42)
+        self.__initialize_logger()
         
         if 'initial_size' in self.model_params.keys():
             self.initial_size = self.model_params['initial_size']
@@ -124,14 +125,18 @@ class DNN:
         if self.model_params['visualize']:
             self.writer = SummaryWriter(self.model_params['tensorboard_path'])
         
-    def __tb_log_metrics(self, metrics, epoch, training = True):
+    def __tb_log_metrics(self, metrics, eval_metrics, epoch, training = True):
         if self.model_params['visualize']:
-            for name, value in metrics.items():
-                self.writer.add_scalar(name + "/" + "Train" if training else "Eval", value, epoch)
+            for key in metrics.keys():
+                values = {'Train' : metrics[key], 'Eval' : eval_metrics[key]}
+                self.writer.add_scalars(key, values, epoch)
+            
+#             for name, value in metrics.items():
+#                 self.writer.add_scalar(name + "/" + "Train" if training else "Eval", value, epoch)
         
     def __tb_log_graph(self):
         if self.model_params['visualize']:
-            self.writer.add_graph(self.model)
+            self.writer.add_graph(self.model, torch.zeros(self.model_params['initial_size']))
     
     def save_model(self, path):
         utils.create_folder(path)
@@ -238,8 +243,7 @@ class DNN:
             val_loss, val_metrics = self.__test(eval_dataset)
             
             if self.model_params['visualize']:
-                self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, epoch, training = True)
-                self.__tb_log_metrics({"loss" : val_loss, **val_metrics}, epoch, training = False)
+                self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, {"loss" : val_loss, **val_metrics}, epoch, training = True)
             
             if self.early_stopping.on_epoch_end(epoch, val_loss):
                 break
@@ -248,17 +252,14 @@ class DNN:
         
     
     def __calculate_metrics(self, pred, target, prvs_metrics = None):
-        
-        metrics = {'accuracy' : pl_metrics.accuracy(pred, target),
-                       'aucroc'   : pl_metrics.aucroc(pred, target),
-                       'f1_score' : pl_metrics.f1_score(pred, target)} 
+#          output.cpu().detach().numpy()
+        metrics = {'accuracy' : pl_metrics.accuracy(torch.round(pred), torch.round(target)),
+                       'aucroc'   : pl_metrics.auroc(pred, target),
+                       'f1_score' : pl_metrics.f1_score(torch.round(pred), torch.round(target))} 
         
         if prvs_metrics is not None: 
-            # doing this to sum two dictionaries with same keys
-            metrics_c = Counter(metrics)
-            prvs_metrics_c = Counter(prvs_metrics)
-            metrics_c.update(prvs_metrics_c)
-            metrics = dict(metrics_c)
+            for key in metrics.keys():
+                metrics[key] += prvs_metrics[key]
             
         return metrics
         
@@ -276,7 +277,7 @@ class DNN:
             running_loss += loss.item()
             
             if self.model_params['visualize']:
-                metrics = self.__calculate_metrics(output, target.float().unsqueeze(1), metrics)
+                metrics = self.__calculate_metrics(output.squeeze(1), target.float(), metrics)
             
             if batch_idx % self.model_params['log_interval'] == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -301,7 +302,7 @@ class DNN:
                 test_loss += self.loss_fn(output, target.float().unsqueeze(1)).item()  # sum up batch loss
                 
                 if self.model_params['visualize']:
-                    metrics = self.__calculate_metrics(output, target.float().unsqueeze(1), metrics)
+                    metrics = self.__calculate_metrics(output.squeeze(1), target.float(), metrics)
 
         test_loss /= len(test_loader.dataset)
         print('\nTest set: Avg loss: {:.4f}\n'.format(test_loss))
