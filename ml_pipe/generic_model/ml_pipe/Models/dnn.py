@@ -120,7 +120,8 @@ class DNN:
         return tf.keras.callbacks.EarlyStopping(monitor = metric, patience = epochs, mode = 'auto', verbose = 1)
     
     def get_tensorboard_callback(self):
-        return tf.keras.callbacks.TensorBoard(self.model_params['tensorboard_path'], update_freq='epoch')
+        return tf.keras.callbacks.TensorBoard(log_dir = self.model_params['tensorboard_path'],
+                                              update_freq = 'epoch' if self.model_params['log_interval'] < 0 else self.model_params['log_interval'])
     
     def build_dataset(self, df, label, batch_size = 1, training = True):
         target = df.pop(label)
