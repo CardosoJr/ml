@@ -82,7 +82,7 @@ def run(config_path):
         print(parameters)
         print("################################################################################")
 
-        config_cp = gridsearch_generator.update_config_tunning(copy.copy(config), parameters)
+        config_cp = gridsearch_generator.update_config_tunning(copy.deepcopy(config), parameters)
 
         if len(config_cp['dataset_generator_params']['all_features']) > 0:
             bkt_params = backtest_generator.BacktestParameters(

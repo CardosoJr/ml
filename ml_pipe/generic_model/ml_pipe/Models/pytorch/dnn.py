@@ -244,7 +244,7 @@ class DNN:
             tr_loss, tr_metrics = self.__train(train_loader = train_dataset, test_loader = eval_dataset, epoch = epoch)
             val_loss, val_metrics = self.__test(eval_dataset)
             
-            if self.model_params['visualize']:
+            if self.model_params['log_interval'] < 0 and self.model_params['visualize']:
                 self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, 
                                       {"loss" : val_loss, **val_metrics}, 
                                       (epoch + 1) * len(train_dataset))
@@ -263,13 +263,18 @@ class DNN:
         if prvs_metrics is not None: 
             for key in metrics.keys():
                 metrics[key] += prvs_metrics[key]
-            
+            metrics['counter'] = prvs_metrics['counter'] + 1
+        else:
+            metrics['counter'] = 1
+
         return metrics
         
     def __train(self, train_loader, test_loader, epoch):
-        self.model.train()
         running_loss = 0
+        epoch_loss = 0
         metrics = None
+        epoch_metrics = None
+        self.model.train()
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = data.to(self.device), target.to(self.device)
             self.optimizer.zero_grad()
@@ -278,33 +283,40 @@ class DNN:
             loss.backward()
             self.optimizer.step()            
             running_loss += loss.item()
+            epoch_loss += loss.item()
             
             if self.model_params['visualize']:
-                metrics = self.__calculate_metrics(output.squeeze(1), target.float(), metrics)
+                metrics = self.__calculate_metrics(torch.sigmoid(output).squeeze(1), target.float(), metrics)
+                epoch_metrics = copy.deepcopy(metrics)
             
-            if self.model_params['log_interval'] > 0 and batch_idx % self.model_params['log_interval'] == 0:
+            if batch_idx > 0 and self.model_params['log_interval'] > 0 and batch_idx % self.model_params['log_interval'] == 0:
                 if self.model_params['visualize']:
                     val_loss, val_metrics = self.__test(test_loader)
-                    tr_metrics = self.__normalize_metrics(copy.copy(metrics), batch_idx + 1)
+                    metrics = self.__normalize_metrics(metrics)
                     
-                    self.__tb_log_metrics({"loss" : running_loss / (batch_idx + 1), **tr_metrics},
+                    self.__tb_log_metrics({"loss" : running_loss / metrics['counter'], **metrics},
                                           {"loss" : val_loss, **val_metrics},
                                           epoch * len(train_loader) + batch_idx + 1)
-
+                
+                    metrics = None # reseting metrics calculations
+                    running_loss = 0 # reseting loss
+                    self.model.train() ## get back to training mode
+                
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader), loss.item()))
+                
+                
         
-        
-        metrics = self.__normalize_metrics(metrics, len(train_loader))
-        
-        return running_loss / len(train_loader), metrics
+        return epoch_loss / len(train_loader), self.__normalize_metrics(epoch_metrics)
              
     
-    def __normalize_metrics(self, metrics, length):
+    def __normalize_metrics(self, metrics):
         if metrics is not None:
             for k in metrics.keys():
-                metrics[k] /= length         
+                if k == "counter":
+                    continue
+                metrics[k] /= metrics['counter']         
         
         return metrics
 
@@ -319,12 +331,12 @@ class DNN:
                 test_loss += self.loss_fn(output, target.float().unsqueeze(1)).item()  # sum up batch loss
                 
                 if self.model_params['visualize']:
-                    metrics = self.__calculate_metrics(output.squeeze(1), target.float(), metrics)
+                    metrics = self.__calculate_metrics(torch.sigmoid(output).squeeze(1), target.float(), metrics)
 
         test_loss /= len(test_loader)
         print('\nTest set: Avg loss: {:.4f}\n'.format(test_loss))
         
-        metrics = self.__normalize_metrics(metrics, len(test_loader))
+        metrics = self.__normalize_metrics(metrics)
         
         return test_loss, metrics
         
