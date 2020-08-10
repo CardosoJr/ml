@@ -19,6 +19,7 @@
 * kubeflow 
 * TFX (tf data validation, model analysis, model profiler) 
 * Airflow
+* [Prefect](https://github.com/prefecthq/prefect)
 
 ### AutoML & Tunning
 * [Carefree](https://github.com/carefree0910/carefree-learn)
@@ -35,6 +36,7 @@
 * https://github.com/drivendata/cookiecutter-data-science
 * [Great Expectations](https://docs.greatexpectations.io/en/latest/): pipeline data validation
 * [Datagene](https://github.com/firmai/datagene): matrix / tensor similarity
+* [Alibi](https://github.com/SeldonIO/alibi-detect)
 
 ### Model Analysis
 * what if tool
