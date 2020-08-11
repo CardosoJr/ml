@@ -21,7 +21,7 @@ import copy
 class TorchDNN(nn.Module):
     def __init__(self, model_params):
         super(TorchDNN, self).__init__()
-        self.block1, output_size = self.__build_block(model_params = model_params,
+        self.block1, output_size = self.build_block(model_params = model_params,
                                         size = model_params['fb_initial_size'],
                                         num_layers = model_params['fb_layers'], 
                                         rate  = model_params['fb_rate'], 
@@ -29,7 +29,7 @@ class TorchDNN(nn.Module):
                                         input_size = model_params['initial_size'])
         
         if model_params['sb_layers'] > 0:
-            self.block2, output_size =  self.__build_block(model_params = model_params,
+            self.block2, output_size =  self.build_block(model_params = model_params,
                                             size = model_params['sb_initial_size'],
                                             num_layers = model_params['sb_layers'], 
                                             rate  = model_params['sb_rate'], 
@@ -41,10 +41,10 @@ class TorchDNN(nn.Module):
         
         self.final_layer = nn.Linear(output_size, 1)
     
-    def __build_block(self, model_params, size, num_layers, rate, min_size, input_size):
+    def build_block(self, model_params, size, num_layers, rate, min_size, input_size):
         layers = []
         layers.append(nn.Linear(input_size, size))
-        layers.append(self.__get_activation(model_params['activation']))
+        layers.append(self.get_activation(model_params['activation']))
         previous_size = int(size)
         
         if model_params['dropout'] > 0:
@@ -58,13 +58,13 @@ class TorchDNN(nn.Module):
             layers.append(nn.Linear(previous_size, size))
             previous_size = size
             
-            layers.append(self.__get_activation(model_params['activation']))
+            layers.append(self.get_activation(model_params['activation']))
             if model_params['dropout'] > 0:
                 layers.append(nn.Dropout(model_params['dropout']))
             
         return nn.Sequential(*layers), size
     
-    def __get_activation(self, activation):
+    def get_activation(self, activation):
         if activation.lower() == 'tanh':
             return nn.Tanh()
         elif activation.lower() == 'elu':
@@ -82,7 +82,7 @@ class TorchDNN(nn.Module):
         return logit # nn.functional.sigmoid(logit)
         
 
-class DNN:
+class DNNBuilder:
     """
     Class DNN in pytorch 
     
@@ -98,7 +98,7 @@ class DNN:
     Using Dill (instead of pickle) to deal with this, but gotta investigate more, if this will impact further
     """
 
-    def __init__(self, 
+    def init(self, 
                  model_params = {},
                  ds_params = {}):
         
@@ -110,7 +110,7 @@ class DNN:
         self.configure_gpu(self.model_params['gpu'])
         self.model = None
         torch.manual_seed(42)
-        self.__initialize_logger()
+        self.initialize_logger()
         
         if 'initial_size' in self.model_params.keys():
             self.initial_size = self.model_params['initial_size']
@@ -123,11 +123,11 @@ class DNN:
     def __hash__(self):
         return hash(repr(self))
     
-    def __initialize_logger(self):
+    def initialize_logger(self):
         if self.model_params['visualize']:
             self.writer = SummaryWriter(self.model_params['tensorboard_path'])
         
-    def __tb_log_metrics(self, metrics, eval_metrics, iteration):
+    def tb_log_metrics(self, metrics, eval_metrics, iteration):
         if self.model_params['visualize']:
             for key in metrics.keys():
                 values = {'Train' : metrics[key], 'Eval' : eval_metrics[key]}
@@ -136,7 +136,7 @@ class DNN:
 #             for name, value in metrics.items():
 #                 self.writer.add_scalar(name + "/" + "Train" if training else "Eval", value, epoch)
         
-    def __tb_log_graph(self):
+    def tb_log_graph(self):
         if self.model_params['visualize']:
             self.writer.add_graph(self.model, torch.zeros(self.model_params['initial_size']))
     
@@ -161,8 +161,8 @@ class DNN:
         with open(path + '/config.pkl', 'rb') as f:
             config = dill.load(f)
             
-        dnn = DNN(**config)
-        dnn.__build()
+        dnn = DNNBuilder(**config)
+        dnn.build_model()
         dnn.model.load_state_dict(torch.load(path + "/model.pt"))
         return dnn
         
@@ -192,11 +192,16 @@ class DNN:
         else:
             return optim.Adam(self.model.parameters(), lr = 0.001 * self.model_params['lr_rate_mult'], weight_decay = self.model_params['regularizer'])
     
-    def __build(self):
+    def build_model(self):
         self.model = TorchDNN(self.model_params).to(self.device)
         self.optimizer = self.get_optimizer()
         self.loss_fn = nn.BCEWithLogitsLoss() # Sigmoid and BCE loss  ## nn.CrossEntropyLoss()
-        self.early_stopping = EarlyStopping(patience = self.model_params['early_stopping_it'])
+        if self.model_params['early_stopping_it'] < 0:
+            patience = 1e9
+        else:
+            patience = self.model_params['early_stopping_it']
+            
+        self.early_stopping = EarlyStopping(patience = patience)
         
     def build(self, datasets, params):
         '''
@@ -234,16 +239,16 @@ class DNN:
         else:
             self.model_params['initial_size'] = input_size
         
-        self.__build()
-        self.__tb_log_graph()
+        self.build_model()
+        self.tb_log_graph()
         
         self.early_stopping.on_train_begin()
         for epoch in np.arange(self.model_params['iterations']):
-            tr_loss, tr_metrics = self.__train(train_loader = train_dataset, test_loader = eval_dataset, epoch = epoch)
-            val_loss, val_metrics = self.__test(eval_dataset)
+            tr_loss, tr_metrics = self.train(train_loader = train_dataset, test_loader = eval_dataset, epoch = epoch)
+            val_loss, val_metrics = self.test(eval_dataset)
             
             if self.model_params['log_interval'] < 0 and self.model_params['visualize']:
-                self.__tb_log_metrics({"loss" : tr_loss, **tr_metrics}, 
+                self.tb_log_metrics({"loss" : tr_loss, **tr_metrics}, 
                                       {"loss" : val_loss, **val_metrics}, 
                                       (epoch + 1) * len(train_dataset))
             
@@ -252,7 +257,7 @@ class DNN:
         
         self.early_stopping.on_train_end()
         
-    def __calculate_metrics(self, pred, target, prvs_metrics = None):
+    def calculate_metrics(self, pred, target, prvs_metrics = None):
 #          output.cpu().detach().numpy()
         metrics = {'accuracy' : pl_metrics.accuracy(torch.round(pred), torch.round(target)),
                        'aucroc'   : pl_metrics.auroc(pred, target),
@@ -267,7 +272,7 @@ class DNN:
 
         return metrics
         
-    def __train(self, train_loader, test_loader, epoch):
+    def train(self, train_loader, test_loader, epoch):
         running_loss = 0
         epoch_loss = 0
         metrics = None
@@ -284,15 +289,15 @@ class DNN:
             epoch_loss += loss.item()
             
             if self.model_params['visualize']:
-                metrics = self.__calculate_metrics(torch.sigmoid(output).squeeze(1), target.float(), metrics)
+                metrics = self.calculate_metrics(torch.sigmoid(output).squeeze(1), target.float(), metrics)
                 epoch_metrics = copy.deepcopy(metrics)
             
             if batch_idx > 0 and self.model_params['log_interval'] > 0 and batch_idx % self.model_params['log_interval'] == 0:
                 if self.model_params['visualize']:
-                    val_loss, val_metrics = self.__test(test_loader)
-                    metrics = self.__normalize_metrics(metrics)
+                    val_loss, val_metrics = self.test(test_loader)
+                    metrics = self.normalize_metrics(metrics)
                     
-                    self.__tb_log_metrics({"loss" : running_loss / metrics['counter'], **metrics},
+                    self.tb_log_metrics({"loss" : running_loss / metrics['counter'], **metrics},
                                           {"loss" : val_loss, **val_metrics},
                                           epoch * len(train_loader) + batch_idx + 1)
                 
@@ -306,10 +311,10 @@ class DNN:
                 
                 
         
-        return epoch_loss / len(train_loader), self.__normalize_metrics(epoch_metrics)
+        return epoch_loss / len(train_loader), self.normalize_metrics(epoch_metrics)
              
     
-    def __normalize_metrics(self, metrics):
+    def normalize_metrics(self, metrics):
         if metrics is not None:
             for k in metrics.keys():
                 if k == "counter":
@@ -318,7 +323,7 @@ class DNN:
         
         return metrics
 
-    def __test(self, test_loader):
+    def test(self, test_loader):
         self.model.eval()
         test_loss = 0
         metrics = None
@@ -329,16 +334,16 @@ class DNN:
                 test_loss += self.loss_fn(output, target.float().unsqueeze(1)).item()  # sum up batch loss
                 
                 if self.model_params['visualize']:
-                    metrics = self.__calculate_metrics(torch.sigmoid(output).squeeze(1), target.float(), metrics)
+                    metrics = self.calculate_metrics(torch.sigmoid(output).squeeze(1), target.float(), metrics)
 
         test_loss /= len(test_loader)
         print('\nTest set: Avg loss: {:.4f}\n'.format(test_loss))
         
-        metrics = self.__normalize_metrics(metrics)
+        metrics = self.normalize_metrics(metrics)
         
         return test_loss, metrics
         
-    def __predict(self, predict_loader):
+    def get_output(self, predict_loader):
         y_pred_list = np.array([])
         self.model.eval()
         metrics = None
@@ -371,7 +376,7 @@ class DNN:
                                                use_gpu = self.model_params['gpu'])
         
         
-        y_pred = self.__predict(predict_dataset)
+        y_pred = self.get_output(predict_dataset)
         
         scoring['PREDICTED'] = y_pred
 

@@ -34,7 +34,7 @@ engineer_creator = {
 model_creator = {
     'xgboost' : lambda params: xgb.XGB(**params),
     'dnn'     : lambda params: dnn.DNN(**params),
-    'dnn_pt' : lambda params: dnn_pt.DNN(**params)}
+    'dnn_pt' : lambda params: dnn_pt.DNNBuilder(**params)}
 
 elasticity = price_elasticity.Elasticity([])
 

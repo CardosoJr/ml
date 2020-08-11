@@ -16,4 +16,4 @@ def load_model(path):
     elif model_class['model'] == 'xgboost':
         return xgb.XGB.load_model(str(path))
     elif model_class['model'] == 'dnn_pt':
-        return pytorch.dnn.DNN.load_model(str(path))
+        return pytorch.dnn.DNNBuilder.load_model(str(path))

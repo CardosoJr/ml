@@ -10,7 +10,7 @@ from torch import nn, optim
 import torch
 from .utils import DFDataset, EarlyStopping, binary_acc
 from generic_model.ml_pipe import utils
-from .dnn import DNN
+from .dnn import DNNBuilder
 
 
 class TorchStackingDNN(nn.Module):
@@ -22,26 +22,26 @@ class TorchStackingDNN(nn.Module):
     """
     
     def __init__(self, model_params):
-        super(TorchDNN, self).__init__()
+        super().__init__()
 
         
         self.blocks = []
         initial_size = model_params['initial_size']
-        self.blocks.append(self.__build_block(model_params = model_params,
+        self.blocks.append(self.build_block(model_params = model_params,
                                         size = model_params['layer_size'],
                                         input_size = initial_size))
         
     
         for index in np.arange(1, model_params['num_blocks']):
             initial_size = initial_size + 1 
-            self.blocks.append(self.__build_block(model_params = model_params,
+            self.blocks.append(self.build_block(model_params = model_params,
                                         size = model_params['layer_size'],
                                         input_size = initial_size))
         
-    def __build_block(self, model_params, size, input_size):
+    def build_block(self, model_params, size, input_size):
         layers = []
         layers.append(nn.Linear(input_size, size))
-        layers.append(self.__get_activation(model_params['activation']))
+        layers.append(self.get_activation(model_params['activation']))
         
         if model_params['dropout'] > 0:
             layers.append(nn.Dropout(model_params['dropout']))
@@ -50,7 +50,7 @@ class TorchStackingDNN(nn.Module):
         
         return nn.Sequential(*layers)
     
-    def __get_activation(self, activation):
+    def get_activation(self, activation):
         if activation.lower() == 'tanh':
             return nn.Tanh()
         elif activation.lower() == 'elu':
@@ -67,7 +67,7 @@ class TorchStackingDNN(nn.Module):
             current_input = torch.cat((current_input, out), dim = 0)
         return out
 
-class ModelBuilder(DNN):
+class SDNBuilder(DNNBuilder):
     """
     Builds Stacked DNNs model
     """
@@ -84,12 +84,12 @@ class ModelBuilder(DNN):
         with open(path + '/config.pkl', 'rb') as f:
             config = dill.load(f)
             
-        dnn = ModelBuilder(**config)
-        dnn.__build()
+        dnn = SDNBuilder(**config)
+        dnn.build_model()
         dnn.model.load_state_dict(torch.load(path + "/model.pt"))
         return dnn
             
-    def __build(self):
+    def build_model(self):
         self.model = TorchStackingDNN(self.model_params).to(self.device)
         self.optimizer = self.get_optimizer()
         self.loss_fn = nn.BCEWithLogitsLoss() # Sigmoid and BCE loss  ## nn.CrossEntropyLoss()
