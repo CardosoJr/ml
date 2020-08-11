@@ -17,8 +17,8 @@ class BinaryAccuracy(Auc):
         super().__init__(date_col, model_output, target, group_col, freq)
         self.threshold = threshold
         
-    def __calculate_metric(self, y_test, y_pred):
+    def calculate_metric(self, y_test, y_pred):
         return metrics.accuracy_score(y_test, np.where(np.array(y_pred) >= self.threshold, 1, 0))
     
-    def __define_metric_name(self):
+    def define_metric_name(self):
         return 'accuracy'

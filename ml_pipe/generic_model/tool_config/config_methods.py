@@ -6,7 +6,7 @@ from generic_model.ml_pipe.DSGenerators import CreateDS
 from generic_model.ml_pipe.FeatureEngineering.PrepareDS_xgb import PrepareDSXgb
 
 # METRICS
-from generic_model.ml_pipe.Metrics import abs_perc_err, auc, elasticity_err
+from generic_model.ml_pipe.Metrics import abs_perc_err, auc, elasticity_err, accuracy, f1_score
 
 # MODELS
 from generic_model.ml_pipe.Models import dnn, xgb
@@ -41,7 +41,9 @@ elasticity = price_elasticity.Elasticity([])
 metrics_creator = {
     'abs_perc_err'   : lambda params: abs_perc_err.AbsPercErr(**params),
     'auc'            : lambda params: auc.Auc(**params),
-    'elasticity_err' : lambda params: elasticity_err.ElasticityErr(**params)   
+    'elasticity_err' : lambda params: elasticity_err.ElasticityErr(**params),
+    'accuracy'       : lambda params: accuracy.BinaryAccuracy(**params),
+    'f1_score'       : lambda params: f1_score.F1Score(**params)
 }
 
 optimization_lock = Lock()

@@ -20,13 +20,13 @@ class ElasticityErr(Auc):
         self.num_bins = num_bins
         super().__init__(date_col, model_output, target, group_col, freq)
     
-    def __calculate_metric(self, y_test, y_pred):
+    def calculate_metric(self, y_test, y_pred):
         raise Exception('method not implemented')
     
-    def __define_metric_name(self):
-        return 'perc_err'
+    def define_metric_name(self):
+        return 'elasticity_err'
     
-    def _calculate(self, df):
+    def calculate_per_group(self, df):
         '''
         description:
             calcualtes absolute percentage error metric
@@ -84,6 +84,6 @@ class ElasticityErr(Auc):
             all_results_grouped[self.group_col] = [region] * len(all_results_grouped) 
             
             err = err.append(all_results_grouped, ignore_index = True)   
-        err['metric'] = [self.metric_name] * len(err)
+        err['metric'] = [self.define_metric_name()] * len(err)
         return err[[self.group_col, 'value', 'metric', 'bin_periods','count']]
         

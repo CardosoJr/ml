@@ -15,13 +15,13 @@ class AbsPercErr(Auc):
                  freq = 'm'):
         super().__init__(date_col, model_output, target, group_col, freq)
         
-    def __calculate_metric(self, y_test, y_pred):
+    def calculate_metric(self, y_test, y_pred):
         raise Exception('method not implemented')
     
-    def __define_metric_name(self):
+    def define_metric_name(self):
         return 'perc_err'
     
-    def _calculate(self, df):
+    def calculate_per_group(self, df):
         '''
         description:
             calcualtes absolute percentage error metric
@@ -49,6 +49,6 @@ class AbsPercErr(Auc):
                 metric[self.group_col] = [region] * len(metric)
                 metric['bin_periods'] = [period] * len(metric)
                 err = err.append(metric, ignore_index = True)
-        err['metric'] = [self.metric_name] * len(err)
+        err['metric'] = [self.define_metric_name()] * len(err)
         return err
    

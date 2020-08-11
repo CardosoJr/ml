@@ -20,16 +20,14 @@ class Auc:
         
         if freq != 'm' and freq != "w": 
             raise ValueError('freq should be m or w')
-            
-        self.metric_name = self.__define_metric_name()
-        
-    def __define_metric_name(self):
+                    
+    def define_metric_name(self):
         return 'auc'
         
     def __hash__(self):
         return hash(repr(self))
     
-    def __calculate_metric(self, y_test, y_pred):
+    def calculate_metric(self, y_test, y_pred):
         try:
             fpr, tpr, thresholds = metrics.roc_curve(y_test, y_pred, pos_label=1)
             auc = metrics.auc(fpr,tpr)
@@ -96,20 +94,19 @@ class Auc:
         output 
             dataframe with metric values
         '''
-        
         all_err = pd.DataFrame([])
         for name, period in analysis_periods.items():
             end_date = self.get_end_date(df, period[0], period[1])
             
             df_aux = df[(df[self.date_col] >= period[0]) & (df[self.date_col] < end_date)]
             
-            err = self._calculate(df_aux)
+            err = self.calculate_per_group(df_aux)
             err['period'] = [name] * len(err)
             all_err = all_err.append(err, ignore_index = True)
     
         return all_err
     
-    def _calculate(self, df):
+    def calculate_per_group(self, df):
         '''
         description:
             calcualtes auc metric
@@ -131,7 +128,7 @@ class Auc:
                 predicted = df_region[self.model_output].fillna(df_region[self.model_output].mean())
                 real = df_region[self.target].fillna(1.0)
                 
-                auc = self.__calculate_metric(real.values, predicted.values)
+                auc = self.calculate_metric(real.values, predicted.values)
                 metric['value'] = [auc]
                 metric['count'] = len(df_region.index)
                 metric[self.group_col] = [region] * len(metric)
@@ -139,6 +136,6 @@ class Auc:
                 
                 err = err.append(metric, ignore_index = True)
 
-        err['metric'] = ['auc'] * len(err)
+        err['metric'] = [self.define_metric_name()] * len(err)
         return err
    
