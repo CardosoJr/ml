@@ -4,9 +4,6 @@ from dateutil.relativedelta import *
 from datetime import datetime
 from sklearn import metrics
 import traceback
-import warnings
-warnings.filterwarnings('ignore')     
-pd.set_option('display.max_columns', 500)
 
 class Auc:
     def __init__(self,
@@ -23,12 +20,16 @@ class Auc:
         
         if freq != 'm' and freq != "w": 
             raise ValueError('freq should be m or w')
+            
+        self.metric_name = self.__define_metric_name()
         
+    def __define_metric_name(self):
+        return 'auc'
         
     def __hash__(self):
         return hash(repr(self))
     
-    def _calculate_auc_roc(self, y_test, y_pred):
+    def __calculate_metric(self, y_test, y_pred):
         try:
             fpr, tpr, thresholds = metrics.roc_curve(y_test, y_pred, pos_label=1)
             auc = metrics.auc(fpr,tpr)
@@ -79,9 +80,6 @@ class Auc:
             
             if (max_dt >= end_date) or (used_periods <= 0):
                 break
-        print('_________________________________________')
-        print(max_dt)
-        print(end_date)
         if (max_dt < end_date) and (used_periods <= 0):
             raise ValueError('dataset does not have one period or more to analyze. Check the dates in your dataset and/or the input analysis period')
                 
@@ -133,7 +131,7 @@ class Auc:
                 predicted = df_region[self.model_output].fillna(df_region[self.model_output].mean())
                 real = df_region[self.target].fillna(1.0)
                 
-                auc = self._calculate_auc_roc(real.values, predicted.values)
+                auc = self.__calculate_metric(real.values, predicted.values)
                 metric['value'] = [auc]
                 metric['count'] = len(df_region.index)
                 metric[self.group_col] = [region] * len(metric)

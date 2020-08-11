@@ -343,6 +343,7 @@ class DNN:
     def __predict(self, predict_loader):
         y_pred_list = np.array([])
         self.model.eval()
+        metrics = None
         with torch.no_grad():
             for data in predict_loader:
                 data = data.to(self.device)

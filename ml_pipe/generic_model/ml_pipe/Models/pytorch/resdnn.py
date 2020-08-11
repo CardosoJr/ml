@@ -102,7 +102,7 @@ class ModelBuilder(DNN):
                  model_params = {},
                  ds_params = {}):
         
-        super(B,self).__init__(model_params, ds_params)
+        super().__init__(model_params, ds_params)
         
 
     @staticmethod
