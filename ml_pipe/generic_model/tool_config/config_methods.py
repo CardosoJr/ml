@@ -10,7 +10,7 @@ from generic_model.ml_pipe.Metrics import abs_perc_err, auc, elasticity_err, acc
 
 # MODELS
 from generic_model.ml_pipe.Models import dnn, xgb
-import generic_model.ml_pipe.Models.pytorch.dnn as dnn_pt
+from generic_model.ml_pipe.Models import pytorch as pt
 import generic_model.ml_pipe.Models.keras.device_manager as dev
 
 # Utils
@@ -34,7 +34,8 @@ engineer_creator = {
 model_creator = {
     'xgboost' : lambda params: xgb.XGB(**params),
     'dnn'     : lambda params: dnn.DNN(**params),
-    'dnn_pt' : lambda params: dnn_pt.DNNBuilder(**params)}
+    'dnn_pt'  : lambda params: pt.dnn.DNNBuilder(**params),
+    'sdnn_pt' : lambda params: pt.sdnn.SDNBuilder(**params)}
 
 elasticity = price_elasticity.Elasticity([])
 
