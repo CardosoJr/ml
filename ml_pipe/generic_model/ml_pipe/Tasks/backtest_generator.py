@@ -56,7 +56,7 @@ class BacktestParameters:
         self.config = config
         
         self.task_engineer_params = {
-            'method' : list(config['task_engineer_params']['methods'].keys()),
+            'method' : sorted(list(config['task_engineer_params']['methods'].keys())),
             'engineer' : BacktestParameters.get_engineer_params(config)}
 
         key = 'teste'
@@ -76,7 +76,7 @@ class BacktestParameters:
                         'elasticity_col' : config['elasticity_variables']}}
 
         self.task_metrics_params = {
-            'method'          : list(config['task_metric_params']['methods'].keys()),
+            'method'          : sorted(list(config['task_metric_params']['methods'].keys())),
             'metrics'         : config['task_metric_params']['methods'],
             'model_name'      : config['model_name'],
             'score_params'    : { 'training' : (config['initial_training_month'], 1) ,

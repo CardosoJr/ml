@@ -79,7 +79,7 @@ def run(config_path):
         }
     
     task_engineer_params = {
-        'method' : list(config['task_engineer_params']['methods'].keys()),
+        'method' : sorted(list(config['task_engineer_params']['methods'].keys())),
         'engineer' : BacktestParameters.get_engineer_params(config)}
 
     task_model_params = {
@@ -91,7 +91,7 @@ def run(config_path):
 
         'build_params' : {'name' : 'single_run'}}
     
-    task_model_params['model']['model_params']['gpu_id'] = available_gpu[np.random.randint(len(available_gpu))]
+    task_model_params['model']['model_params']['gpu_id'] = available_gpu[0]
 
     task_predict_params = {
         'predict_params' : {
@@ -100,7 +100,7 @@ def run(config_path):
                     'elasticity_col' : config['elasticity_variables']}}
 
     task_metrics_params = {
-        'method'          : list(config['task_metric_params']['methods'].keys()),
+        'method'          : sorted(list(config['task_metric_params']['methods'].keys())),
         'metrics'         : config['task_metric_params']['methods'],
         'model_name'      : config['model_name'],
         'score_params'    : {'erro_train' : (config['initial_training_month'], config['dataset_generator_params']['tl']),

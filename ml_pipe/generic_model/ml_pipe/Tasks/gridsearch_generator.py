@@ -142,7 +142,7 @@ def get_all_possible_features(variable_groups):
     all_variables = []
     _ = [all_variables.extend(x) for x in aux]
     all_possible_features = np.unique(all_variables)
-    return list(all_possible_features)
+    return sorted(list(all_possible_features))
 
 def get_features(parameters, variable_sets):
     '''
@@ -158,7 +158,7 @@ def get_features(parameters, variable_sets):
             if parameters[group] == True:
                 selected_features.extend(variable_sets[group])
 
-    return selected_features
+    return sorted(selected_features)
 
 
     
