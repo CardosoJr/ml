@@ -208,8 +208,6 @@ class DNN:
         '''
         
         self.name = params['name']
-
-        print('DROPNA MISSING', len(datasets['train_df'].dropna()) / len(datasets['train_df']))
         
         X_train = datasets['train_df'].dropna()
         X_test = datasets['eval_df'].dropna()
@@ -382,5 +380,5 @@ class DNN:
             self.ds_params['target'] : 'TARGET',
         })
         
-        scoring['PREDICTED'] = 1 - scoring['PREDICTED']
+        scoring['PREDICTED'] = scoring['PREDICTED']
         return scoring

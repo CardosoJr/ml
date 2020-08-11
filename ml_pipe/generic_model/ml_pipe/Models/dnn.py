@@ -265,5 +265,5 @@ class DNN:
             self.ds_params['target'] : 'TARGET',
         })
         
-        scoring['PREDICTED'] = 1 - scoring['PREDICTED']
+        scoring['PREDICTED'] = scoring['PREDICTED']
         return scoring
