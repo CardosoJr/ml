@@ -162,14 +162,22 @@ class DNN:
                 layers.append(tf.keras.layers.Dropout(rate = self.model_params['dropout']))
             
         return layers
+    
+    def get_learning_rate(self):
+        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001 * self.model_params['lr_rate_mult'],
+                                                                       decay_steps = 10000,
+                                                                       decay_rate = 0.96,
+                                                                       staircase = True)
+        
+        return lr_schedule
         
     def get_optimizer(self):
         if self.model_params['optimizer'].lower() == "rmsprop":
-            return tf.keras.optimizers.RMSprop(learning_rate = 0.001 * self.model_params['lr_rate_mult'])
+            return tf.keras.optimizers.RMSprop(learning_rate = self.get_learning_rate())
         elif self.model_params['optimizer'].lower() == "nadam":
-            return tf.keras.optimizers.Nadam(learning_rate = 0.001 * self.model_params['lr_rate_mult'])
+            return tf.keras.optimizers.Nadam(learning_rate = self.get_learning_rate())
         else:
-            return tf.keras.optimizers.Adam(learning_rate = 0.001 * self.model_params['lr_rate_mult'])
+            return tf.keras.optimizers.Adam(learning_rate = self.get_learning_rate())
     
     def get_compiled_model(self):
         model_layers = []
