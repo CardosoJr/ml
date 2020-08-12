@@ -385,5 +385,4 @@ class DNNBuilder:
             self.ds_params['target'] : 'TARGET',
         })
         
-        scoring['PREDICTED'] = scoring['PREDICTED']
         return scoring

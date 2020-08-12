@@ -30,13 +30,15 @@ class DNN:
                  model_params = {},
                  ds_params = {}):
         
-        self.__configure_tf()        
-        self.device = []
+        self.use_gpu = len(tf.config.experimental.list_physical_devices('GPU')) > 0 and model_params['gpu']
+        
+        self.__configure_tf()     
+        self.device = None
               
 #         tf.debugging.set_log_device_placement(True)
         self.ds_params = ds_params
         self.model_params =  model_params
-        strategy = self.configure_gpu(self.model_params['gpu'])
+        strategy = self.configure_gpu()
         if strategy is not None: 
             with strategy.scope():
                 self.model = self.get_compiled_model()
@@ -51,8 +53,8 @@ class DNN:
         return hash(repr(self))
     
     def __configure_tf(self):
-        os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = "true"
-        tf.compat.v1.disable_eager_execution() # check to see if this improves performance (https://github.com/tensorflow/tensorflow/issues/33487)
+        if self.use_gpu:
+            os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = "true"
     
     def save_model(self, path):
         self.model.save(path)
@@ -89,15 +91,15 @@ class DNN:
         print("Creating a new model")
         return get_compiled_model()
     
-    def configure_gpu(self, use_gpu = False):
-        if len(tf.config.experimental.list_physical_devices('GPU')) > 0 and use_gpu:
-            print(tf.config.list_physical_devices())
+    def configure_gpu(self):
+        if self.use_gpu:
+            print(tf.config.experimental.list_physical_devices())
             
             self.device = config_methods.device_manager.get_available_device()
             self.device.append("/cpu:0")
             print('{0} - Process {1} Acquiring'.format(datetime.now().strftime("%H:%M:%S-%f"), os.getpid()), self.device)
 
-            all_devs = tf.config.experimental.list_physical_devices()
+            all_devs = tf.config.list_physical_devices()
             aux_devs = ["/physical_device:" + x.upper().replace("/", "") for x in self.device]
             selected_devs = [x for x in all_devs if x.name in aux_devs]
             print("Selected Devices", self.device)
@@ -108,6 +110,7 @@ class DNN:
             return strategy
         else:
             print('Not using GPU')
+            self.device = None
             tf.config.experimental.set_visible_devices([], 'GPU')
             return None
         
@@ -146,7 +149,7 @@ class DNN:
                                             activation = self.model_params['activation'],
                                             kernel_regularizer = tf.keras.regularizers.l2(self.model_params['regularizer'])))
         if self.model_params['dropout'] > 0:
-            layers.append(tf.keras.layers.Dropout(self.model_params['dropout']))
+            layers.append(tf.keras.layers.Dropout(rate = self.model_params['dropout']))
         for nl in np.arange(num_layers - 1):
             size = size * rate
             if size < min_size: 
@@ -156,7 +159,7 @@ class DNN:
                                                 activation = self.model_params['activation'],
                                                 kernel_regularizer = tf.keras.regularizers.l2(self.model_params['regularizer'])))
             if self.model_params['dropout'] > 0:
-                layers.append(tf.keras.layers.Dropout(self.model_params['dropout']))
+                layers.append(tf.keras.layers.Dropout(rate = self.model_params['dropout']))
             
         return layers
         
@@ -265,5 +268,4 @@ class DNN:
             self.ds_params['target'] : 'TARGET',
         })
         
-        scoring['PREDICTED'] = scoring['PREDICTED']
         return scoring

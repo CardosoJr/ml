@@ -1,25 +1,18 @@
 #!/bin/bash -e
 
-mkdir -p ./modelos
-mkdir -p ./modelos/generic_model
-
-cp -r  ../../lib/ ./lib/
-cp -r  ../../modelos/generic_model/ ./modelos
+cp -r  ../../generic_model/ ./
 cp -r  ../../main.py ./main.py
-cp -r  ../../config_geral.yaml ./config_geral.yaml
 cp -r  ../../gpu_config.yaml ./gpu_config.yaml
 
 
 PROJECT_ID=$(gcloud config config-helper --format "value(configuration.properties.core.project)")
-CONTAINER_NAME=esteira/generic_model
+CONTAINER_NAME=generic_model_pt
 TAG_NAME='latest'
 
 docker build -t ${CONTAINER_NAME} .
 docker tag ${CONTAINER_NAME} gcr.io/${PROJECT_ID}/${CONTAINER_NAME}:${TAG_NAME}
-docker push gcr.io/${PROJECT_ID}/${CONTAINER_NAME}:${TAG_NAME}
+# docker push gcr.io/${PROJECT_ID}/${CONTAINER_NAME}:${TAG_NAME}
 
-rm -rf lib
-rm -rf modelos
+rm -rf generic_model
 rm main.py 
-rm config_geral.yaml
 rm gpu_config.yaml

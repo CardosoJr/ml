@@ -7,7 +7,7 @@ Build Image from main path modelagem/. For example: bash Images/generic_model/do
 ### Running
 
 run using: 
-docker run --gpus all gcr.io/sas-auto-marketprice-analytics/esteira/generic_model:latest params
+docker run --gpus all generic_model_tf:latest params
 
 The params are (in order):
 1) Mode: (backtest, tunning)
