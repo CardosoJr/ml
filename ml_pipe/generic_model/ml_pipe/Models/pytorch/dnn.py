@@ -111,9 +111,6 @@ class DNNBuilder:
         self.model = None
         torch.manual_seed(42)
         self.initialize_logger()
-        
-        if 'initial_size' in self.model_params.keys():
-            self.initial_size = self.model_params['initial_size']
             
     def __del__(self):
         self.release_devices()

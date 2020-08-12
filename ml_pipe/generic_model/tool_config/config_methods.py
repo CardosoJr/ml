@@ -9,7 +9,7 @@ from generic_model.ml_pipe.FeatureEngineering.PrepareDS_xgb import PrepareDSXgb
 from generic_model.ml_pipe.Metrics import abs_perc_err, auc, elasticity_err, accuracy, f1_score
 
 # MODELS
-from generic_model.ml_pipe.Models import dnn, xgb
+from generic_model.ml_pipe.Models import dnn, sdnn, xgb
 from generic_model.ml_pipe.Models import pytorch as pt
 import generic_model.ml_pipe.Models.keras.device_manager as dev
 
@@ -34,6 +34,7 @@ engineer_creator = {
 model_creator = {
     'xgboost' : lambda params: xgb.XGB(**params),
     'dnn'     : lambda params: dnn.DNN(**params),
+    'sdnn'     : lambda params: sdnn.SDNN(**params),
     'dnn_pt'  : lambda params: pt.dnn.DNNBuilder(**params),
     'sdnn_pt' : lambda params: pt.sdnn.SDNBuilder(**params)}
 

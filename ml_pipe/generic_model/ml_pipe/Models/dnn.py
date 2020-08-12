@@ -37,14 +37,7 @@ class DNN:
               
 #         tf.debugging.set_log_device_placement(True)
         self.ds_params = ds_params
-        self.model_params =  model_params
-        strategy = self.configure_gpu()
-        if strategy is not None: 
-            with strategy.scope():
-                self.model = self.get_compiled_model()
-        else:
-            self.model= self.get_compiled_model()    
-            
+        self.model_params =  model_params  
             
     def __del__(self):
         self.release_devices()
@@ -238,6 +231,21 @@ class DNN:
                                                self.ds_params['target'], 
                                                batch_size = self.model_params['batch_size'], 
                                                training = False)
+        
+        input_size = len(X_train.columns) - 1 # - 1 due to TARGET column 
+        
+        if 'initial_size' in self.model_params.keys():
+            if input_size != self.model_params['initial_size']:
+                raise Exception("Model input with different dimension")
+        else:
+            self.model_params['initial_size'] = input_size
+        
+        strategy = self.configure_gpu()
+        if strategy is not None: 
+            with strategy.scope():
+                self.model = self.get_compiled_model()
+        else:
+            self.model= self.get_compiled_model()  
         
         
         callbacks = [self.get_early_stopping_callback('auc', self.model_params['early_stopping_it'])]
