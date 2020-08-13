@@ -4,9 +4,10 @@ import math
 import os
 import tensorflow as tf
 import dill
-from generic_model.tool_config import config_methods
 from datetime import datetime
 import os
+
+from .keras import device_manager as dev
 
 class DNN:
     """
@@ -88,7 +89,7 @@ class DNN:
         if self.use_gpu:
             print(tf.config.experimental.list_physical_devices())
             
-            self.device = config_methods.device_manager.get_available_device()
+            self.device = dev.device_manager.get_available_device()
             self.device.append("/cpu:0")
             print('{0} - Process {1} Acquiring'.format(datetime.now().strftime("%H:%M:%S-%f"), os.getpid()), self.device)
 
@@ -108,9 +109,9 @@ class DNN:
             return None
         
     def release_devices(self):
-        if self.device is not None and config_methods.device_manager is not None: 
+        if self.device is not None and dev.device_manager is not None: 
             print('{0} - Process {1} Releasing'.format(datetime.now().strftime("%H:%M:%S-%f"), os.getpid()), self.device)
-            config_methods.device_manager.release(self.device)
+            dev.device_manager.release(self.device)
             
     def get_early_stopping_callback(self, metric, epochs):
         return tf.keras.callbacks.EarlyStopping(monitor = metric, patience = epochs, mode = 'auto', verbose = 1)
@@ -212,13 +213,17 @@ class DNN:
             datasets {'train_df' : dataframe, 'eval_df' : dataframe}
         output:
         '''
-        
         self.name = params['name']
-
-        print('DROPNA MISSING', len(datasets['train_df'].dropna()) / len(datasets['train_df']))
-        
         X_train = datasets['train_df'].dropna()
         X_test = datasets['eval_df'].dropna()
+        
+        input_size = len(X_train.columns) - 1 # - 1 due to TARGET column 
+        if 'initial_size' in self.model_params.keys():
+            if input_size != self.model_params['initial_size']:
+                raise Exception("Model input with different dimension")
+        else:
+            self.model_params['initial_size'] = input_size
+        
 
         steps_per_epoch = len(X_train) // (self.model_params['batch_size'] * 10) # 10 epochs for completing the dataset 
 
@@ -232,13 +237,6 @@ class DNN:
                                                batch_size = self.model_params['batch_size'], 
                                                training = False)
         
-        input_size = len(X_train.columns) - 1 # - 1 due to TARGET column 
-        
-        if 'initial_size' in self.model_params.keys():
-            if input_size != self.model_params['initial_size']:
-                raise Exception("Model input with different dimension")
-        else:
-            self.model_params['initial_size'] = input_size
         
         strategy = self.configure_gpu()
         if strategy is not None: 

@@ -11,7 +11,7 @@ from generic_model.ml_pipe.Metrics import abs_perc_err, auc, elasticity_err, acc
 # MODELS
 from generic_model.ml_pipe.Models import dnn, sdnn, xgb
 from generic_model.ml_pipe.Models import pytorch as pt
-import generic_model.ml_pipe.Models.keras.device_manager as dev
+# import generic_model.ml_pipe.Models.keras.ice_manager as dev
 
 # Utils
 from generic_model.ml_pipe.Utils import price_elasticity
@@ -50,10 +50,10 @@ metrics_creator = {
 
 optimization_lock = Lock()
 
-## Using Manager / Proxy objects because DeviceManager will be shared in different processes
-## This approach is not recommended if DeviceManager is more complex (like a nested class). It would be better to use low-level methods
-# device_manager = dev.DeviceManager()
-BaseManager.register('DeviceManager', dev.DeviceManager)
-manager = BaseManager()
-manager.start()
-device_manager = manager.DeviceManager()
+# ## Using Manager / Proxy objects because DeviceManager will be shared in different processes
+# ## This approach is not recommended if DeviceManager is more complex (like a nested class). It would be better to use low-level methods
+# # device_manager = dev.DeviceManager()
+# BaseManager.register('DeviceManager', dev.DeviceManager)
+# manager = BaseManager()
+# manager.start()
+# device_manager = manager.DeviceManager()

@@ -64,4 +64,18 @@ class DeviceManager:
             print(ex)       
         finally:
             self.lock.release()
+            
+            
+# OTHER LIBS
+from multiprocessing import Process, Manager, Lock
+from multiprocessing.managers import BaseManager
+
+
+## Using Manager / Proxy objects because DeviceManager will be shared in different processes
+## This approach is not recommended if DeviceManager is more complex (like a nested class). It would be better to use low-level methods
+# device_manager = dev.DeviceManager()
+BaseManager.register('DeviceManager', DeviceManager)
+manager = BaseManager()
+manager.start()
+device_manager = manager.DeviceManager()
          

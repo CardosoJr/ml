@@ -1,13 +1,7 @@
 import pandas as pd
 import numpy as np
-import math
-import os
 import tensorflow as tf
 import dill
-from generic_model.tool_config import config_methods
-from datetime import datetime
-import os
-
 from .dnn import DNN
 
 class SDNN(DNN):
@@ -51,32 +45,37 @@ class SDNN(DNN):
         return dnn
 
         
-    def build_block(self, size,  block_input):
-        r = tf.keras.layers.Dense(units = size,
+    def build_block(self, input_size):
+        inputs = tf.keras.Input(shape = (input_size,))
+        r = tf.keras.layers.Dense(units = self.model_params['layer_size'],
                                         activation = self.model_params['activation'],
-                                        kernel_regularizer = tf.keras.regularizers.l2(self.model_params['regularizer']))(block_input)
+                                        kernel_regularizer = tf.keras.regularizers.l2(self.model_params['regularizer']))(inputs)
         
         if self.model_params['dropout'] > 0:
             r = tf.keras.layers.Dropout(rate = self.model_params['dropout'])(r)
         
         r = tf.keras.layers.Dense(1, activation = 'sigmoid')(r)
-            
-        return r
+        
+        model = tf.keras.Model(inputs = inputs, outputs = r)
+        
+        return model
     
 
     def get_compiled_model(self):
         model_layers = []
+        blocks = []
+        for i in np.arange(self.model_params['num_blocks']):
+            blocks.append(self.build_block(self.model_params['initial_size'] + i))
 
-        nn_input = tf.keras.Input(shape = (self.model_params['initial_size'],))
-        r = self.build_block(self.model_params['layer_size'], nn_input)
-        block_input = tf.identity(nn_input)
+        inputs = tf.keras.Input(shape = (self.model_params['initial_size'],))
+        outputs = blocks[0](inputs)
+        block_input = tf.concat([inputs, outputs], 1)
         
-        for index in np.arange(1, model_params['num_blocks']):
-            block_input = tf.concat([block_input, r], 0)
-            r = self.build_block(self.model_params['layer_size'], block_input)
-            
+        for index in np.arange(1, self.model_params['num_blocks']):
+            outputs = blocks[index](block_input)
+            block_input = tf.concat([block_input, outputs], 1)
         
-        model = tf.keras.Model(inputs = nn_input, outputs = r, name = 'sdnn')
+        model = tf.keras.Model(inputs = inputs, outputs = outputs, name = 'sdnn')
         
         model.compile(optimizer = self.get_optimizer(),
                            loss = 'binary_crossentropy',
