@@ -77,6 +77,8 @@ class SDNN(DNN):
         
         model = tf.keras.Model(inputs = inputs, outputs = outputs, name = 'sdnn')
         
+#         tf.keras.utils.plot_model(model = model, to_file = 'model.png', show_shapes = True, expand_nested = True)
+        
         model.compile(optimizer = self.get_optimizer(),
                            loss = 'binary_crossentropy',
                            metrics = [tf.keras.metrics.BinaryAccuracy(name = 'binary_acuracy'), 

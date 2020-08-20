@@ -190,7 +190,8 @@ class DNNBuilder:
             return optim.Adam(self.model.parameters(), lr = 0.001 * self.model_params['lr_rate_mult'], weight_decay = self.model_params['regularizer'])
     
     def build_model(self):
-        self.model = TorchDNN(self.model_params).to(self.device)
+        self.model = TorchDNN(self.model_params)
+        self.model = torch.nn.DataParallel(self.model).to(self.device)
         self.optimizer = self.get_optimizer()
         self.loss_fn = nn.BCEWithLogitsLoss() # Sigmoid and BCE loss  ## nn.CrossEntropyLoss()
         if self.model_params['early_stopping_it'] < 0:
