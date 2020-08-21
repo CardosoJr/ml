@@ -40,6 +40,18 @@ class TorchDNN(nn.Module):
             self.block2 = None
         
         self.final_layer = nn.Linear(output_size, 1)
+        
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
+        
     
     def build_block(self, model_params, size, num_layers, rate, min_size, input_size):
         layers = []
