@@ -41,6 +41,7 @@ class TorchDNN(nn.Module):
         
         self.final_layer = nn.Linear(output_size, 1)
         
+        # Initializations 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.xavier_normal_(m.weight)
