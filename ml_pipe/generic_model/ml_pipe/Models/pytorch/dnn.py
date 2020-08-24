@@ -16,6 +16,7 @@ import pytorch_lightning.metrics.functional as pl_metrics
 from collections import Counter
 
 import copy
+from tqdm import tqdm 
 
 
 class TorchDNN(nn.Module):
@@ -254,7 +255,7 @@ class DNNBuilder:
         self.tb_log_graph()
         
         self.early_stopping.on_train_begin()
-        for epoch in np.arange(self.model_params['iterations']):
+        for epoch in tqdm(np.arange(self.model_params['iterations']), desc = 'Epoch Iterations'):
             tr_loss, tr_metrics = self.train(train_loader = train_dataset, test_loader = eval_dataset, epoch = epoch)
             val_loss, val_metrics = self.test(eval_dataset)
             
