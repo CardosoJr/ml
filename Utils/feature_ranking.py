@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 from dateutil.relativedelta import *
 from sklearn import metrics
 from sklearn.model_selection import KFold
-
+from sklearn.model_selection import train_test_split
 
 class FeatureRanking: 
-    def __init__(self, df, target, categorical_feat = None):
+    def __init__(self, df, target, categorical_feat = None, test_size = 0.6):
         self.df = df
         self.categorical_feat = categorical_feat
         self.target = target
         if categorical_feat is not None:
-            self.__handle_cat_features()
+            self.__handle_cat_features(test_size)
             
     def get_rank(self,
                  num_top_features = 20,
@@ -28,14 +28,14 @@ class FeatureRanking:
             correlation_threshold = 1.0
         
         
-        iv_rank = self.iv(rank_plot, num_top_features)
-        self.__update_ranking(ranking, iv_rank[::-1])
+        self.iv_rank = self.iv(rank_plot, num_top_features)
+        self.__update_ranking(ranking, self.iv_rank)
         
-        lr_rank = self.lr(rank_plot)
-        self.__update_ranking(ranking, lr_rank)
+        self.lr_rank = self.lr(rank_plot)
+        self.__update_ranking(ranking, self.lr_rank)
         
-        gb_rank = self.gb(rank_plot, sample_percent, correlation_threshold, missing_threshold)
-        self.__update_ranking(ranking, gb_rank)
+        self.gb_rank = self.gb(rank_plot, sample_percent, correlation_threshold, missing_threshold)
+        self.__update_ranking(ranking, self.gb_rank)
         
         final_features = self.__handle_correlated(ranking, correlation_threshold)
 
@@ -52,7 +52,7 @@ class FeatureRanking:
         df_dict['Ranking'] = rks
 
         ranking_df = pd.DataFrame(df_dict)
-        med_ranking_df = ranking_df.groupby('Feature')['Ranking'].median().reset_index()
+        med_ranking_df = ranking_df.groupby('Feature')['Ranking'].mean().reset_index()
         
         if rank_plot:
             f, ax = plt.subplots(figsize=(20, 6))
@@ -79,7 +79,7 @@ class FeatureRanking:
             ranking[var].append(i)
             i = i + 1
     
-    def __handle_correlated(self, ranking, correlation_threshold):
+    def __handle_correlated(self, ranking, correlation_threshold):        
         if correlation_threshold is None or correlation_threshold == 1.0:
             pass
         
@@ -112,17 +112,22 @@ class FeatureRanking:
         return features
 
     
-    def __handle_cat_features(self):
+    def __handle_cat_features(self, test_size):
         self.df[self.categorical_feat] = self.df[self.categorical_feat].fillna('MISSING')
         
-        t, _, _ = kfold_target_encoder(train = self.df, 
-                                       test = self.df.sample(1000), 
-                                       valid = self.df.sample(1000), 
+        X_train, X_test = train_test_split(self.df, test_size = test_size, random_state = 9999)
+        
+        t, e, _ = kfold_target_encoder(train = X_train, 
+                                       test = X_test, 
+                                       valid = X_test, 
                                        cols_encode = self.categorical_feat, 
                                        target = self.target, 
                                        folds = 10)
         
-        self.df = self.df.drop(columns = self.categorical_feat).join(t)
+        self.df = X_test.drop(columns = self.categorical_feat).join(e)
+#         self.df = self.df.drop(columns = self.categorical_feat).join(t)
+
+        
 
     def iv(self, rank_plot = False, num_top_features = 20):
         def calc_iv(df, feature, target, pr=False):
@@ -152,21 +157,22 @@ class FeatureRanking:
             return iv, data
         
         ivs = []
-        for var in self.df.columns:
-            if var == self.target:
-                continue
+        all_features = list(self.df.columns.ravel())
+        all_features.remove(self.target) 
+        for var in all_features:
             iv, _ = calc_iv(self.df, var, self.target)
             ivs.append(iv)
 
         def get_key(item):
             return item[0]
-        save = sorted(zip(ivs, self.df.columns), key = get_key)
+        save = sorted(zip(ivs, all_features), key = get_key, reverse = True)
+        
         
         if rank_plot:
             fig, ax = plt.subplots(figsize=(15,8))
-            pos = np.arange(len( save[-num_top_features:])) + 0.5  
-            plt.bar(pos, [x[0] for x in save[-num_top_features:]], align='center', color = '#416986')
-            plt.xticks(pos, [x[1] for x in save[-num_top_features:]], rotation = 90)
+            pos = np.arange(len( save[:num_top_features])) + 0.5  
+            plt.bar(pos, [x[0] for x in save[:num_top_features]], align='center', color = '#416986')
+            plt.xticks(pos, [x[1] for x in save[:num_top_features]], rotation = 90)
             plt.ylabel('IV', size = 15)
             plt.xticks(size = 12)
             plt.yticks(size = 12)
