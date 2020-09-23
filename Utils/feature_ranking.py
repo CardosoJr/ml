@@ -6,6 +6,7 @@ from dateutil.relativedelta import *
 from sklearn import metrics
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
+import category_encoders as ce
 
 class FeatureRanking: 
     def __init__(self, df, target, categorical_feat = None, test_size = 0.6):
@@ -114,20 +115,18 @@ class FeatureRanking:
     
     def __handle_cat_features(self, test_size):
         self.df[self.categorical_feat] = self.df[self.categorical_feat].fillna('MISSING')
+        self.original_df = self.df.copy()
         
         X_train, X_test = train_test_split(self.df, test_size = test_size, random_state = 9999)
         
-        t, e, _ = kfold_target_encoder(train = X_train, 
-                                       test = X_test, 
-                                       valid = X_test, 
-                                       cols_encode = self.categorical_feat, 
-                                       target = self.target, 
-                                       folds = 10)
+        y_train = X_train.pop(self.target)
+        y_test = X_test.pop(self.target)
         
-        self.df = X_test.drop(columns = self.categorical_feat).join(e)
-#         self.df = self.df.drop(columns = self.categorical_feat).join(t)
-
-        
+        enc = ce.CatBoostEncoder(cols = self.categorical_feat, drop_invariant = False).fit(X_train, y_train)
+        X_train = enc.transform(X_train)
+        X_test = enc.transform(X_test)
+    
+        self.df = X_test.join(y_test)
 
     def iv(self, rank_plot = False, num_top_features = 20):
         def calc_iv(df, feature, target, pr=False):
@@ -254,15 +253,17 @@ class FeatureRanking:
         return ordered_vars
     
     def gb(self, rank_plot, sample_percent = 0.2, correlation_threshold = 0.8, missing_threshold = 0.6):
-        from feature_selector import FeatureSelector
-        x = self.df.sample(frac = sample_percent)
+        from fs import FeatureSelector
+        x = self.original_df.sample(frac = sample_percent)
         y = x.pop(self.target)
 
         fs = FeatureSelector(data = x, labels = y)
+        categorical_features = [x for x,y in self.original_df.dtypes.items() if y == 'object']
 
         fs.identify_all(selection_params = {'missing_threshold': missing_threshold, 'correlation_threshold': correlation_threshold, 
                                                 'task': 'classification', 'eval_metric': 'auc', 
-                                                'cumulative_importance': 0.99}) 
+                                                'cumulative_importance': 0.99, 'categorical_features' : categorical_features, 
+                                                'categorical_method' : "catboost"}) 
         
         train_removed_all_once = fs.remove(methods = 'all', keep_one_hot = True)    
         kept_feat = list(train_removed_all_once.columns)
@@ -369,34 +370,3 @@ class FeatureRanking:
         labels_to_drop = self.__get_redundant_pairs(df)
         au_corr = au_corr.drop(labels=labels_to_drop, errors  = 'ignore' ).sort_values(ascending=False)
         return au_corr[0:n]
-
-def kfold_target_encoder(train, test, valid, cols_encode, target, folds=10):
-    """
-    Mean regularized target encoding based on kfold
-    """
-    train_new = train.copy()
-    test_new = test.copy()
-    valid_new = valid.copy()
-    kf = KFold(n_splits=folds, shuffle = False, random_state=1)
-    
-    for col in cols_encode:
-        global_mean = train_new[target].mean()
-        train_new[col + "_mean_enc"] = [global_mean] * len(train_new)
-        for train_index, test_index in kf.split(train_new):
-            mean_target = train_new.iloc[train_index].groupby(col)[target].mean()
-            indexes = train_new.iloc[test_index].index
-            train_new.loc[indexes, col + "_mean_enc"] = train_new.iloc[test_index][col].map(mean_target)
-        
-        # making test encoding using full training data
-        col_mean = train_new.groupby(col)[target].mean()
-        test_new[col + "_mean_enc"] = test_new[col].map(col_mean)
-        test_new[col + "_mean_enc"].fillna(global_mean, inplace=True)
-        valid_new[col + "_mean_enc"] = valid_new[col].map(col_mean)
-        valid_new[col + "_mean_enc"].fillna(global_mean, inplace=True)
-    
-    # filtering only mean enc cols
-    train_new = train_new.filter(like="mean_enc", axis=1)
-    test_new = test_new.filter(like="mean_enc", axis=1)
-    valid_new = valid_new.filter(like="mean_enc", axis=1)
-
-    return train_new, test_new, valid_new
