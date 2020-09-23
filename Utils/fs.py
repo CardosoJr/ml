@@ -297,6 +297,8 @@ class FeatureSelector():
                                                                                  train_labels,
                                                                                  valid_features)
                 
+                self.data_all = train_features
+                
                     
                 # Train the model with early stopping
                 model.fit(train_features, train_labels, eval_metric = eval_metric,
