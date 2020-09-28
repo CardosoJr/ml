@@ -101,11 +101,12 @@ class FeatureRanking:
         features = list(df_final.columns)
 
         for feat_a, feat_b in au_corr.index:
+            print(feat_a, feat_b)
             if feat_a in features and feat_b in features:
                 if np.median(ranking[feat_a]) > np.median(ranking[feat_b]):
-                    features.remove(feat_b)
-                else:
                     features.remove(feat_a)
+                else:
+                    features.remove(feat_b)
                     
         return features
 
