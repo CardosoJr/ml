@@ -8,6 +8,7 @@
 * https://github.com/allegroai/trains/
 * https://github.com/SCCH-KVS/training-engine
 * [Caliban](https://github.com/google/caliban)
+* https://github.com/nidhaloff/igel
 
 ### Debuging
 * PixieDebugger 
@@ -27,6 +28,8 @@
 * optuna
 * https://github.com/gdikov/hypertunity
 * hyperopt
+* tpot 
+* autosklearn
 
 ### Data Eng & Data Analysis
 * https://github.com/pandas-profiling/pandas-profiling
@@ -48,8 +51,8 @@
 * https://github.com/tensorflow/fairness-indicators
 
 
-### Feature Engineering 
-* TPOT 
+### Feature Selection 
+* [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
 
 ### Data Transformation 
 * Apache Beam
@@ -100,7 +103,7 @@
 * https://project-awesome.org/markusschanta/awesome-jupyter
 * https://github.com/nellopai/deepLearningModels
 * [tensor house - supply chain solutions](https://github.com/ikatsov/tensor-house)
-
+* [Compendium](https://docs.google.com/document/d/1wvtcwc8LOb3PZI9huQOD7UjqUoY98N5r3aQsWKNAlzk/edit#heading=h.y6mpsp4co5t9)
 
 ### Courses Lists
 * https://github.com/Amin-Tgz/awesome-tensorflow-2
