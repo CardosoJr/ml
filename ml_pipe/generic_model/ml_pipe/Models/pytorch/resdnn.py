@@ -126,7 +126,10 @@ class ResNetBuilder(DNNBuilder):
         dnn.build_model()
         dnn.model.load_state_dict(torch.load(path + "/model.pt"))
         return dnn
-            
+       
+    def get_model_name(self):
+        return 'resdnn_pt'
+    
     def build_model(self):
         self.model = TorchResDNN(self.model_params).to(self.device)
         self.optimizer = self.get_optimizer()

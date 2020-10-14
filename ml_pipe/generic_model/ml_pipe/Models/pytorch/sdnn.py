@@ -101,9 +101,13 @@ class SDNBuilder(DNNBuilder):
         dnn.build_model()
         dnn.model.load_state_dict(torch.load(path + "/model.pt"))
         return dnn
+    
+    def get_model_name(self):
+        return 'sdnn_pt'
             
     def build_model(self):
-        self.model = TorchStackingDNN(self.model_params).to(self.device)
+        self.model = TorchStackingDNN(self.model_params)
+        self.model = torch.nn.DataParallel(self.model).to(self.device)
         self.optimizer = self.get_optimizer()
         self.loss_fn = nn.BCEWithLogitsLoss() # Sigmoid and BCE loss  ## nn.CrossEntropyLoss()
         self.early_stopping = EarlyStopping(patience = self.model_params['early_stopping_it'])

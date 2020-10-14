@@ -151,6 +151,9 @@ class DNNBuilder:
         if self.model_params['visualize']:
             self.writer.add_graph(self.model, torch.zeros(self.model_params['initial_size']))
     
+    def get_model_name(self):
+        return 'dnn_pt'
+    
     def save_model(self, path):
         utils.create_folder(path)
         torch.save(self.model.state_dict(), path + "/model.pt")
@@ -159,7 +162,7 @@ class DNNBuilder:
             'ds_params' : self.ds_params,
         }
         
-        model_class = {'model' : 'dnn_pt'}
+        model_class = {'model' : self.get_model_name()}
         
         with open(path + '/model_class.pkl', 'wb') as f:
             dill.dump(model_class, f)
