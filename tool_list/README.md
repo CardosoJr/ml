@@ -33,6 +33,7 @@
 
 ### Data Eng & Data Analysis
 * https://github.com/pandas-profiling/pandas-profiling
+* [Sweetviz](https://github.com/fbdesignpro/sweetviz)
 * https://github.com/yhat/pandasql
 * https://github.com/dovpanda-dev/dovpanda
 * https://github.com/modin-project/modin
