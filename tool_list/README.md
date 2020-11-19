@@ -75,6 +75,7 @@
 
 ### xAi 
 * https://github.com/andreysharapov/xaience
+* [Captum](https://captum.ai/)
 
 ### Others 
 * https://github.com/airbnb/knowledge-repo
