@@ -30,6 +30,7 @@
 * hyperopt
 * tpot 
 * autosklearn
+* [Jina - cloud ready](https://github.com/jina-ai/jina/)
 
 ### Data Eng & Data Analysis
 * https://github.com/pandas-profiling/pandas-profiling
