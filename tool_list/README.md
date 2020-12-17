@@ -9,6 +9,10 @@
 * https://github.com/SCCH-KVS/training-engine
 * [Caliban](https://github.com/google/caliban)
 * https://github.com/nidhaloff/igel
+* https://ashwinparanjape.github.io/meticulous-ml/
+* https://machinable.org/guide/#how-it-works
+* https://guild.ai/
+* https://replicate.ai/
 
 ### Debuging
 * PixieDebugger 
@@ -31,6 +35,7 @@
 * tpot 
 * autosklearn
 * [Jina - cloud ready](https://github.com/jina-ai/jina/)
+* [Autogluon](https://github.com/awslabs/autogluon/)
 
 ### Data Eng & Data Analysis
 * https://github.com/pandas-profiling/pandas-profiling
