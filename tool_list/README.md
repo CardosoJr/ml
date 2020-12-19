@@ -12,6 +12,7 @@
 * https://ashwinparanjape.github.io/meticulous-ml/
 * https://machinable.org/guide/#how-it-works
 * https://guild.ai/
+* https://www.wandb.com/
 * https://replicate.ai/
 
 ### Debuging
