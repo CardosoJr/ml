@@ -14,6 +14,7 @@
 * https://guild.ai/
 * https://www.wandb.com/
 * https://replicate.ai/
+* https://github.com/aimhubio/aim
 
 ### Debuging
 * PixieDebugger 
@@ -26,6 +27,8 @@
 * TFX (tf data validation, model analysis, model profiler) 
 * Airflow
 * [Prefect](https://github.com/prefecthq/prefect)
+* https://github.com/maiot-io/zenml
+* https://www.garnet.ai/
 
 ### AutoML & Tunning
 * [Carefree](https://github.com/carefree0910/carefree-learn)
@@ -57,6 +60,7 @@
 * https://github.com/PAIR-code/facets
 * tensorboard
 * https://github.com/tensorflow/fairness-indicators
+* TFMA
 
 
 ### Feature Selection 
