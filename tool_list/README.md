@@ -40,6 +40,7 @@
 * autosklearn
 * [Jina - cloud ready](https://github.com/jina-ai/jina/)
 * [Autogluon](https://github.com/awslabs/autogluon/)
+* [FLAML](https://github.com/microsoft/FLAML)
 
 ### Data Eng & Data Analysis
 * https://github.com/pandas-profiling/pandas-profiling
