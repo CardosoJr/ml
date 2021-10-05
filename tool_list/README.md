@@ -43,6 +43,7 @@
 * [FLAML](https://github.com/microsoft/FLAML)
 
 ### Data Eng & Data Analysis
+* [Data Quality](https://github.com/ydataai/ydata-quality)
 * https://github.com/pandas-profiling/pandas-profiling
 * [Sweetviz](https://github.com/fbdesignpro/sweetviz)
 * https://github.com/yhat/pandasql
