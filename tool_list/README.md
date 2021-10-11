@@ -22,6 +22,8 @@
 
 ### Pipelines
 * d6tflow
+* Argo
+* Flyte
 * https://metaflow.org/
 * kubeflow 
 * TFX (tf data validation, model analysis, model profiler) 
@@ -41,6 +43,7 @@
 * [Jina - cloud ready](https://github.com/jina-ai/jina/)
 * [Autogluon](https://github.com/awslabs/autogluon/)
 * [FLAML](https://github.com/microsoft/FLAML)
+* [FEDOT](https://github.com/nccr-itmo/FEDOT)
 
 ### Data Eng & Data Analysis
 * [Data Quality](https://github.com/ydataai/ydata-quality)
@@ -64,7 +67,6 @@
 * https://github.com/tensorflow/fairness-indicators
 * TFMA
 
-
 ### Feature Selection 
 * [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
 
@@ -78,6 +80,9 @@
 * tensorflow 
 * https://stanfordmlgroup.github.io/projects/ngboost/
 
+## Causal Models
+* https://github.com/bookingcom/upliftml
+
 ### Graph Models 
 * https://github.com/benedekrozemberczki/littleballoffur
 * https://github.com/danielegrattarola/spektral/
@@ -85,6 +90,11 @@
 ### Time Series 
 * https://tsfresh.readthedocs.io/en/latest/
 * https://github.com/TDAmeritrade/stumpy
+* https://github.com/deepcharles/ruptures
+* https://github.com/unit8co/darts
+
+### Streaming Training
+* https://scikit-multiflow.github.io/
 
 ### xAi 
 * https://github.com/andreysharapov/xaience
