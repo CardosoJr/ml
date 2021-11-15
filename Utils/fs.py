@@ -316,7 +316,7 @@ class FeatureSelector():
                 gc.collect()
                 
             else:
-                model.fit(features, labels)
+                model.fit(self.data, self.labels)
 
             # Record the feature importances
             feature_importance_values += model.feature_importances_ / n_iterations
