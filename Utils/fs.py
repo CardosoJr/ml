@@ -290,6 +290,11 @@ class FeatureSelector():
                 
             # If training using early stopping need a validation set
             if early_stopping:
+                if task == 'classification':
+                    train_features, valid_features, train_labels, valid_labels = train_test_split(self.data, self.labels, test_size = 0.15, stratify = self.labels)
+                else:
+                    train_features, valid_features, train_labels, valid_labels = train_test_split(self.data, self.labels, test_size = 0.15)
+                
                 train_features, valid_features, train_labels, valid_labels = train_test_split(self.data, self.labels, test_size = 0.15, stratify = self.labels)
                 train_features, valid_features = self.treat_categorical_features(categorical_features, 
                                                                                  categorical_method, 
