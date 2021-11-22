@@ -80,7 +80,7 @@
 * tensorflow 
 * https://stanfordmlgroup.github.io/projects/ngboost/
 
-## Causal Models
+### Causal Models
 * https://github.com/bookingcom/upliftml
 
 ### Graph Models 
@@ -95,6 +95,9 @@
 
 ### Streaming Training
 * https://scikit-multiflow.github.io/
+
+### Serving 
+* https://github.com/mosecorg/mosec
 
 ### xAi 
 * https://github.com/andreysharapov/xaience
