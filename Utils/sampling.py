@@ -8,7 +8,7 @@ def ProportionSampleSize(p, N = None, sample_err = 0.02, ci = 0.975, inifinite_p
     if inifinite_population:
         sample_size = zalpha ** 2 * p * (1 - p) / (sample_err ** 2)
     else: 
-        sample_size = zalpha ** 2 * p * (1 - p) * N / ((sample_err ** 2) * p * (1 - p) + (N - 1) * sample_err ** 2) 
+        sample_size = zalpha ** 2 * p * (1 - p) * N / ((zalpha ** 2) * p * (1 - p) + (N - 1) * sample_err ** 2) 
 
     return sample_size
 
