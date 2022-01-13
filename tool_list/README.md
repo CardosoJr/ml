@@ -19,6 +19,7 @@
 ### Debuging
 * PixieDebugger 
 * PDB
+* https://github.com/ropas/pytea
 
 ### Pipelines
 * d6tflow
@@ -66,6 +67,8 @@
 * tensorboard
 * https://github.com/tensorflow/fairness-indicators
 * TFMA
+* https://github.com/deepchecks/deepchecks
+* https://github.com/evidentlyai/evidently
 
 ### Feature Selection 
 * [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
@@ -74,14 +77,27 @@
 * Apache Beam
 * Tensorflow data transformation 
 
-### Models
-* catboost / xgboost 
-* pytorch 
+### Model Frameworks 
+* Jax
+* pytorch
 * tensorflow 
+
+### Models
+* catboost / xgboost / lightgbm
 * https://stanfordmlgroup.github.io/projects/ngboost/
+
+### Data Augmentation 
+* https://github.com/facebookresearch/AugLy
 
 ### Causal Models
 * https://github.com/bookingcom/upliftml
+
+### Bayesian Models 
+* PyMC
+
+### Interfaces 
+* ipywidgets 
+* gradio 
 
 ### Graph Models 
 * https://github.com/benedekrozemberczki/littleballoffur
@@ -97,7 +113,7 @@
 * https://scikit-multiflow.github.io/
 
 ### Serving 
-* https://github.com/mosecorg/mosec
+* https://github.com/mosecorg/mosec 
 
 ### xAi 
 * https://github.com/andreysharapov/xaience
