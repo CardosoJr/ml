@@ -32,7 +32,6 @@ from sklearn.cluster import KMeans
 
 import time
 
-
 class GeneticClusterOptimization:
     
     def __init__(self,df, initialization=False ,target_column='', periodo_features=["",""],

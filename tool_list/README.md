@@ -108,6 +108,8 @@
 * https://github.com/TDAmeritrade/stumpy
 * https://github.com/deepcharles/ruptures
 * https://github.com/unit8co/darts
+* https://github.com/linkedin/greykite
+* https://github.com/facebookresearch/Kats
 
 ### Streaming Training
 * https://scikit-multiflow.github.io/
