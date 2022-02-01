@@ -6,7 +6,6 @@
 * https://www.comet.ml/site/enterprise/
 * mlflow 
 * https://github.com/allegroai/trains/
-* https://github.com/SCCH-KVS/training-engine
 * [Caliban](https://github.com/google/caliban)
 * https://github.com/nidhaloff/igel
 * https://ashwinparanjape.github.io/meticulous-ml/
@@ -150,6 +149,7 @@
 * https://github.com/nellopai/deepLearningModels
 * [tensor house - supply chain solutions](https://github.com/ikatsov/tensor-house)
 * [Compendium](https://docs.google.com/document/d/1wvtcwc8LOb3PZI9huQOD7UjqUoY98N5r3aQsWKNAlzk/edit#heading=h.y6mpsp4co5t9)
+* https://github.com/qdrant/awesome-metric-learning
 
 ### Courses Lists
 * https://github.com/Amin-Tgz/awesome-tensorflow-2
