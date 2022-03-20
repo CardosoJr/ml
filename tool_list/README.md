@@ -31,6 +31,7 @@
 * [Prefect](https://github.com/prefecthq/prefect)
 * https://github.com/maiot-io/zenml
 * https://www.garnet.ai/
+* https://github.com/stitchfix/hamilton
 
 ### AutoML & Tunning
 * [Carefree](https://github.com/carefree0910/carefree-learn)
@@ -68,6 +69,10 @@
 * TFMA
 * https://github.com/deepchecks/deepchecks
 * https://github.com/evidentlyai/evidently
+
+
+### Cloud Training
+* https://spotty.cloud/
 
 ### Feature Selection 
 * [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
