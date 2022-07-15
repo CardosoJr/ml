@@ -55,8 +55,10 @@
 * https://github.com/modin-project/modin
 * https://github.com/drivendata/cookiecutter-data-science
 * [Great Expectations](https://docs.greatexpectations.io/en/latest/): pipeline data validation
+* https://github.com/MAIF/eurybia
 * [Datagene](https://github.com/firmai/datagene): matrix / tensor similarity
 * [Alibi](https://github.com/SeldonIO/alibi-detect)
+* https://github.com/cleanlab/cleanlab
 
 ### Model Analysis
 * what if tool
@@ -124,6 +126,8 @@
 ### xAi 
 * https://github.com/andreysharapov/xaience
 * [Captum](https://captum.ai/)
+* https://github.com/linkedin/fasttreeshap
+* https://github.com/Trusted-AI/AIX360
 
 ### Others 
 * https://github.com/airbnb/knowledge-repo
