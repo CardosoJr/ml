@@ -22,7 +22,7 @@ pandas==1.0.1
 pickleshare==0.7.5
 dill==0.3.2
 cloudpickle==1.5.0
-protobuf==3.11.3
+protobuf==3.18.3
 pyarrow==0.16.0
 python-daemon==2.2.4
 python-dateutil==2.8.1
