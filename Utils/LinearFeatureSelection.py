@@ -5,9 +5,9 @@ from sklearn.metrics import log_loss
 import scipy.stats as stat
 
 class LinearFeatureSelection: 
-    def fit_transform(self, df, small_categorical, large_categorical):
+    def fit_transform(self, df, small_categorical, large_categorical, target):
         df_aux = df.copy(deep = True)
-        df_final, var_buckets, clf, global_pvalues = optimize_category_levels(df_aux, small_categorical, large_categorical)
+        df_final, var_buckets, clf, global_pvalues = optimize_category_levels(df_aux, small_categorical, large_categorical, target)
         self.small_categorical = small_categorical
         self.large_categorical = large_categorical
         self.var_buckets = var_buckets
@@ -82,7 +82,7 @@ def likelihood_ratio_test(features_alternate, labels, lr_model, features_null=pd
 
     return G,p_value
 
-def order_variable_importance(df,features):
+def order_variable_importance(df, features, target):
     """
     Recebe um dataframe e variáveis alvo. Calcula o likelihood-test-ratio individual para todos
     usando um classificador logistico do scikit-learn. Retorna uma lista de variáveis ordenadas
@@ -92,7 +92,7 @@ def order_variable_importance(df,features):
     res = []
     for feat in features:
         X = pd.get_dummies(df[feat],prefix='feat')
-        y = df['QTD_PROP']
+        y = df[target]
         clf = LogisticRegression(random_state=0, solver='liblinear',max_iter =10000, warm_start =True)
         G, p_value = likelihood_ratio_test(X, y, clf)
         res.append([feat,G])
@@ -249,13 +249,13 @@ def find_relevant_buckets_small_cat(df, df_final, var, target, var_buckets={}, t
     var_buckets[var] = [top_volume_var,fix_list]
     return df_final_teste,var_buckets
 
-def optimize_category_levels(df,small_categorical,large_categorical):
+def optimize_category_levels(df, small_categorical, large_categorical, target):
     features = small_categorical + large_categorical
-    ordered_variables = [y[0] for y in order_variable_importance(df,features)]
+    ordered_variables = [y[0] for y in order_variable_importance(df, features, target)]
     print(ordered_variables)
     var_buckets = {}
     df_final = pd.DataFrame([])
-    target = df['QTD_PROP']
+    target = df[target]
     global_pvalues = []
     for var in ordered_variables:
         #testar p-valor global
