@@ -1,6 +1,6 @@
 # Machine Learning Tool List
 
-### Experimentation 
+### Experimentation - ML Tracker
 * https://deepkit.ai/documentation/getting-started
 * https://neptune.ai/
 * https://www.comet.ml/site/enterprise/
@@ -14,6 +14,7 @@
 * https://www.wandb.com/
 * https://replicate.ai/
 * https://github.com/aimhubio/aim
+* https://github.com/whylabs/whylogs
 
 ### Debuging
 * PixieDebugger 
@@ -59,6 +60,8 @@
 * [Datagene](https://github.com/firmai/datagene): matrix / tensor similarity
 * [Alibi](https://github.com/SeldonIO/alibi-detect)
 * https://github.com/cleanlab/cleanlab
+* https://github.com/AutoViML/AutoViz
+* ydata-quality
 
 ### Model Analysis
 * what if tool
@@ -72,7 +75,18 @@
 * https://github.com/deepchecks/deepchecks
 * https://github.com/evidentlyai/evidently
 * [Fortuna - Uncertainty](https://github.com/awslabs/fortuna)
+* https://github.com/linkedin/fasttreeshap
+* https://github.com/archinetai/surgeon-pytorch
+* https://github.com/mert-kurttutan/torchview
+* https://github.com/MAIF/shapash
+* https://github.com/CalculatedContent/WeightWatcher
 
+### Scrapping
+* https://github.com/alirezamika/autoscraper
+
+### MLOps
+* [Lineapy -> Notebook to code](https://github.com/LineaLabs/lineapy)
+* https://github.com/eto-ai/lance
 
 ### Cloud Training
 * https://spotty.cloud/
@@ -102,9 +116,10 @@
 ### Bayesian Models 
 * PyMC
 
-### Interfaces 
+### UI 
 * ipywidgets 
 * gradio 
+* https://github.com/mljar/mercury
 
 ### Graph Models 
 * https://github.com/benedekrozemberczki/littleballoffur
@@ -117,6 +132,7 @@
 * https://github.com/unit8co/darts
 * https://github.com/linkedin/greykite
 * https://github.com/facebookresearch/Kats
+* Statsforecast
 
 ### Streaming Training
 * https://scikit-multiflow.github.io/
