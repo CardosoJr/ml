@@ -71,6 +71,7 @@
 * TFMA
 * https://github.com/deepchecks/deepchecks
 * https://github.com/evidentlyai/evidently
+* [Fortuna - Uncertainty](https://github.com/awslabs/fortuna)
 
 
 ### Cloud Training
