@@ -62,6 +62,7 @@
 * https://github.com/cleanlab/cleanlab
 * https://github.com/AutoViML/AutoViz
 * ydata-quality
+* https://github.com/doordash-oss/DataQualityReport
 
 ### Model Analysis
 * what if tool
